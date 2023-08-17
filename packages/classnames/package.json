@@ -1,6 +1,6 @@
 {
 	"name": "@likg/classnames",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "处理class的库",
 	"type": "module",
 	"types": "./dist/index.d.ts",

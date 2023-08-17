@@ -1,6 +1,6 @@
 {
 	"name": "@likg/js-bridge",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Cookie APIs",
 	"type": "module",
 	"types": "./dist/index.d.ts",
