@@ -20,6 +20,7 @@
 		"prettier/prettier": "error",
 		"no-case-declarations": "off",
 		"no-constant-condition": "off",
+		"@typescript-eslint/no-this-alias": "off",
 		"@typescript-eslint/ban-ts-comment": "off",
 		"@typescript-eslint/no-explicit-any": "off"
 	}

@@ -2,7 +2,7 @@
  * @Author: Lee
  * @Date: 2023-08-16 18:35:28
  * @LastEditors: Lee
- * @LastEditTime: 2023-08-17 21:15:52
+ * @LastEditTime: 2023-08-18 10:16:57
  * @Description:
  */
 
@@ -16,10 +16,43 @@ import eslint from '@rollup/plugin-eslint';
 import terser from '@rollup/plugin-terser';
 import { babel } from '@rollup/plugin-babel';
 
-/**
- * 获取packages目录
- */
+const isProduction = process.env.NODE_ENV === 'production';
 const pkgPath = path.resolve(__dirname, '../packages');
+
+const commonPlugins = (pkgName) => ([
+	del({ targets: `${pkgPath}/${pkgName}/dist/**/*` }),
+	resolve(),
+	commonjs(),
+	eslint({
+		include: ['src/**'],
+		exclude: ['node_modules/**'],
+		throwOnError: true, // 出现ESLint错误时，打断打包进程
+		throwOnWarning: true // 出现ESLint警告时，打断打包进程
+	}),
+	typescript({
+		tsconfig: `${pkgPath}/${pkgName}/tsconfig.json`,
+		sourceMap: false
+	}),
+	babel({
+		extensions: ['.js', '.ts'],
+		exclude: 'node_modules/**',
+		babelHelpers: 'bundled'
+	})
+]);
+const devPlugins = [];
+const proPlugins = [
+	terser({
+		compress: {
+			drop_console: true,
+			drop_debugger: true
+		},
+		format: {
+			comments: (_, comment) => {
+				return /eslint\-disable/.test(comment.value); // 不删除eslint的注释
+			}
+		}
+	})
+];
 
 /**
  * 获取需要打包的文件路径
@@ -68,7 +101,8 @@ function generateOutputs(formats, distPath, moduleName) {
 			file: `${distPath}/index.${format}.js`,
 			format,
 			name: ['iife', 'umd'].includes(format) ? moduleName : undefined,
-			sourcemap: false
+			sourcemap: false,
+			banner: '/* eslint-disable */\n'
 		});
 	});
 	return outputs;
@@ -90,30 +124,6 @@ export function generateRollupConfig(pkgName) {
 			distPath,
 			buildOptions.moduleName
 		),
-		plugins: [
-			del({ targets: `${pkgPath}/dist/**/*` }),
-			resolve(),
-			commonjs(),
-			eslint({
-				include: ['src/**'],
-				exclude: ['node_modules/**'],
-				throwOnError: true, // 出现ESLint错误时，打断打包进程
-				throwOnWarning: true // 出现ESLint警告时，打断打包进程
-			}),
-			typescript({
-				tsconfig: `${pkgPath}/tsconfig.json`,
-				sourceMap: false
-			}),
-			babel({
-				extensions: ['.js', '.ts'],
-				exclude: 'node_modules/**',
-				babelHelpers: 'bundled'
-			}),
-			terser({
-				compress: {
-					drop_console: true
-				}
-			})
-		]
+		plugins: [...commonPlugins(pkgName), ...(isProduction ? proPlugins : devPlugins)]
 	};
 }
