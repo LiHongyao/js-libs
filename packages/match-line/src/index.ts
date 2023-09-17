@@ -17,7 +17,7 @@ export interface MatchLineOptions {
 	/** 连线元素标签 */
 	items: NodeListOf<HTMLElement>;
 	/** 连线元素标签激活状态的类名，默认：active */
-	itemActiveCls: string;
+	itemActiveCls?: string;
 	/** 画笔相关 */
 	strokeStyle?: string | CanvasGradient | CanvasPattern;
 	lineWidth?: number;
