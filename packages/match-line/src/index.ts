@@ -4,42 +4,10 @@
  * HomePage：https://github.com/lihongyao
  */
 
-export interface MatchLineOptions {
-	/**
-	 * 外层容器·包裹canvas和左右布局元素的容器，
-	 * 布局结构：div.container>div.leftItems+div.rightItem+canvas+backCanvas
-	 */
-	container: HTMLElement;
-	/** 实际连线标签Canvas */
-	canvas: HTMLCanvasElement;
-	/** 模拟连线标签Canvas */
-	backCanvas: HTMLCanvasElement;
-	/** 连线元素标签 */
-	items: NodeListOf<HTMLElement>;
-	/** 连线元素标签激活状态的类名，默认：active */
-	itemActiveCls?: string;
-	/** 画笔相关 */
-	strokeStyle?: string | CanvasGradient | CanvasPattern;
-	lineWidth?: number;
-	/** 用户连线答案·可选（在查看试卷详情以及纠错时必传） */
-	anwsers?: MatchLineAnwsersProps;
-	/** 标准答案·可选（在纠错时必传） */
-	standardAnwsers?: MatchLineAnwsersProps;
-	/** 是否禁用·可选（在查看试卷详情以及纠错时必传true） */
-	disabled?: boolean;
-	/** 每一次连线成功的回调·参数为连线结果集 */
-	onChange: (anwsers: MatchLineAnwsersProps) => void;
-}
-
 /**
- * 答案数据结构
- * 示例：[['L1', 'R1'], ['L2', 'R2], ...]
- * 每一个答案元素集合中：
- * ① 下标为0，表示左侧元素id
- * ② 下标为1，表示右侧元素id
+ * 数据结构 → { 水果: '🥕', 动物: '🚗', 汽车: '🐒', 蔬菜: '🍌'}
  */
-type MatchLineAnwserItemProps = string[];
-export type MatchLineAnwsersProps = MatchLineAnwserItemProps[];
+export type MatchLineOption = Record<string, string>;
 
 interface Point {
 	x1: number;
@@ -47,32 +15,58 @@ interface Point {
 	x2: number;
 	y2: number;
 }
+
 interface BackLinesItemProps {
-	anwser: MatchLineAnwserItemProps;
+	key: string;
 	point: Point;
 }
-interface CheckAnwserItemProps {
+interface CheckAnwsersItemProps {
 	isOk: boolean;
 	point: Point;
 }
 
+export interface MatchLineConfigs {
+	/** 外层容器·包裹canvas和左右布局元素的容器，布局结构：div.container>div.leftItems+div.rightItem+canvas+backCanvas */
+	container: HTMLElement;
+	/** 实际连线标签Canvas */
+	canvas: HTMLCanvasElement;
+	/** 模拟连线标签Canvas */
+	backCanvas: HTMLCanvasElement;
+	/** 连线元素集合 */
+	items: NodeListOf<HTMLElement>;
+	/** 连线元素标签激活状态的类名，默认：active */
+	itemActiveCls?: string;
+	/** 画笔相关 */
+	strokeStyle?: string | CanvasGradient | CanvasPattern;
+	lineWidth?: number;
+	/** 用户连线答案·可选（在查看试卷详情以及纠错时必传） */
+	anwsers?: MatchLineOption;
+	/** 标准答案·可选（在纠错时必传） */
+	standardAnwsers?: MatchLineOption;
+	/** 是否禁用·可选（在查看试卷详情以及纠错时必传true） */
+	disabled?: boolean;
+	/** 初始化时是否显示锚点 */
+	showAnchorOnInit?: boolean;
+	/** 每一次连线成功的回调·参数为连线结果集 */
+	onChange: (anwsers: MatchLineOption) => void;
+}
+
 export default class MatchLine {
+	/** 容器元素 */
+	private container: HTMLElement;
 	/** 连线元素标签 */
 	private items: NodeListOf<HTMLElement>;
+	/** 连线元素激活状态类名 */
+	private itemActiveCls: string;
+	/** 画板（因为实际连线画布和模拟连线画布布局信息一致，所以这里的canvas随便记录哪一个都可以） */
+	private canvas: HTMLCanvasElement;
 	/** 实际连线画布*/
 	private ctx: CanvasRenderingContext2D | null;
 	/** 模拟连线画布 */
 	private backCtx: CanvasRenderingContext2D | null;
-	/** 连线元素激活状态类名 */
-	private itemActiveCls: string;
 	/** 画笔相关 */
 	private strokeStyle: string | CanvasGradient | CanvasPattern;
 	private lineWidth: number;
-	/** 画布相关 */
-	private canvasWidth = 0;
-	private canvasHeight = 0;
-	private canvasTop = 0;
-	private canvasLeft = 0;
 	/** 标识是否触发连线 */
 	private trigger = false;
 	/** 每一次连接线开始点（结束点动态计算，无需记录） */
@@ -80,22 +74,22 @@ export default class MatchLine {
 	/** 每一次连接线起始元素 */
 	private startElement: HTMLElement | null = null;
 	private endElement: HTMLElement | null = null;
-	/** 记录已经连接好的线 */
+	/** 记录已经连接好的线（用于回显、撤销和重置） */
 	private backLines: BackLinesItemProps[] = [];
 	/** 标准答案，用于纠错，数据格式：[[L1, R1], [L2, R2], ...] */
-	private standardAnwsers?: MatchLineAnwsersProps;
-	/** 每一次连线成功的回调 */
-	private onChange: (anwsers: MatchLineAnwsersProps) => void;
+	private standardAnwsers?: MatchLineOption;
 	/** 是否禁用 */
 	private disabled: boolean;
 	/** 用户连线答案 */
-	private anwsers: MatchLineAnwsersProps = [];
+	private anwsers: MatchLineOption;
+	/** 每一次连线成功的回调 */
+	private onChange: (anwsers: MatchLineOption) => void;
 
 	/**
 	 * 构造函数
 	 * @param options
 	 */
-	constructor(options: MatchLineOptions) {
+	constructor(options: MatchLineConfigs) {
 		// 解构Options
 		const {
 			container,
@@ -105,21 +99,24 @@ export default class MatchLine {
 			itemActiveCls = 'active',
 			strokeStyle = 'blue',
 			lineWidth = 2,
-			anwsers = [],
+			anwsers,
 			standardAnwsers,
 			disabled = false,
+			showAnchorOnInit,
 			onChange
 		} = options;
 
 		// 存储变量
-		this.itemActiveCls = itemActiveCls;
+		this.container = container;
 		this.items = items;
-		this.anwsers = anwsers;
+		this.itemActiveCls = itemActiveCls;
+		this.anwsers = anwsers || {};
 		this.standardAnwsers = standardAnwsers;
 		this.disabled = disabled;
 		this.onChange = onChange;
 
 		// 画布 & 画笔相关
+		this.canvas = canvas;
 		this.ctx = canvas.getContext('2d');
 		this.backCtx = backCanvas.getContext('2d');
 
@@ -127,38 +124,27 @@ export default class MatchLine {
 		this.lineWidth = lineWidth;
 
 		const { width, height } = container.getBoundingClientRect();
-		this.canvasWidth = canvas.width = backCanvas.width = width;
-		this.canvasHeight = canvas.height = backCanvas.height = height;
+		canvas.width = backCanvas.width = width;
+		canvas.height = backCanvas.height = height;
 
 		// 计算元素信息
-		this.calcRect(canvas, items);
-		// 缩放窗口时，实时更新数据
-		const that = this;
-		window.onresize = () => that.calcRect(canvas, items);
-		window.onscroll = () => that.calcRect(canvas, items);
+		this.calcRect(items, showAnchorOnInit);
 		// 事件监听
 		items.forEach((item) => (item.onmousedown = this.mousedown.bind(this)));
 		document.onmousemove = this.mousemove.bind(this);
 		document.onmouseup = this.mouseup.bind(this);
 		// 判断是否渲染连线
-		if (this.anwsers.length > 0) {
+		if (anwsers) {
 			this.echoAnwsers();
 		}
 	}
 
 	/**
 	 * 计算节点信息
-	 * 在调整视窗大小以及滚动窗口时需动态调整，避免计算连线坐标异常
 	 * @param canvas
 	 * @param items
 	 */
-	private calcRect(canvas: HTMLCanvasElement, items: NodeListOf<HTMLElement>) {
-		// 更新canvas距离屏幕左上角的位置
-		const rect = canvas.getBoundingClientRect();
-		this.canvasTop = rect.top;
-		this.canvasLeft = rect.left;
-		// 记录节点信息
-		this.ctx?.clearRect(0, 0, canvas.width, canvas.height);
+	private calcRect(items: NodeListOf<HTMLElement>, showAnchorOnInit?: boolean) {
 		items.forEach((item) => {
 			// 获取元素在屏幕上的信息
 			const { width, height } = item.getBoundingClientRect();
@@ -172,15 +158,16 @@ export default class MatchLine {
 			item.dataset.anchorY = String(anchorY);
 			// 标识当前元素是否连线
 			item.dataset.checked = '0';
-			// 如果用户传入了anwsers，则渲染连线结果
-
 			// 绘制锚点，查看锚点位置是否准确（临时代码）
-			// this.ctx?.beginPath();
-			// this.ctx?.arc(anchorX, anchorY, 4, 0, Math.PI * 2);
-			// this.ctx?.stroke();
-			// this.ctx?.closePath();
+			if (showAnchorOnInit) {
+				this.ctx?.beginPath();
+				this.ctx?.arc(anchorX, anchorY, 4, 0, Math.PI * 2);
+				this.ctx?.stroke();
+				this.ctx?.closePath();
+			}
 		});
 	}
+
 	/**
 	 * 鼠标按下
 	 * @param event
@@ -217,14 +204,15 @@ export default class MatchLine {
 		// 获取鼠标在屏幕上的位置
 		const { clientX, clientY } = event;
 		// 计算鼠标在画板中的位置
+		const { left, top } = this.canvas.getBoundingClientRect();
 		const endPoint = {
-			x: clientX - this.canvasLeft,
-			y: clientY - this.canvasTop
+			x: clientX - left,
+			y: clientY - top
 		};
 		// 连线：实际画板
 		this.ctx.strokeStyle = this.strokeStyle;
 		this.ctx.lineWidth = this.lineWidth;
-		this.ctx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+		this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.ctx.beginPath();
 		this.ctx.moveTo(this.startPoint.x, this.startPoint.y);
 		this.ctx.lineTo(endPoint.x, endPoint.y);
@@ -245,10 +233,12 @@ export default class MatchLine {
 		// 如果鼠标经过的元素等于目标元素，不作任何处理
 		if (overElement === this.endElement) return;
 		// 判断是否命中目标元素，条件如下（同时满足）
-		// ① 鼠标经过的元素必须包含类名 item
+		// ① 鼠标经过的元素必须必须是连线元素（可通过判断 data-ownership 是否为‘L’或‘R’判断）
 		// ② 鼠标经过的元素和开始元素不在同一侧
 		// ③ 鼠标经过的元素未被连线
-		const condition1 = overElement?.classList.contains('item');
+		const condition1 = ['L', 'R'].includes(
+			overElement?.dataset.ownership ?? ''
+		);
 		const condition2 = overElement?.dataset.ownership !== ownership;
 		const condition3 = overElement?.dataset.checked !== '1';
 		if (condition1 && condition2 && condition3) {
@@ -278,6 +268,7 @@ export default class MatchLine {
 	 */
 	private mouseup(event: MouseEvent) {
 		if (!this.trigger) return;
+
 		// 如果开始元素存在且未被连线，则恢复开始元素的状态
 		if (this.startElement && this.startElement.dataset.checked !== '1') {
 			this.startElement.classList.remove(this.itemActiveCls);
@@ -294,37 +285,46 @@ export default class MatchLine {
 			const { anchorX: x2, anchorY: y2 } = this.endElement.dataset;
 			// 获取开始元素归属：左侧还是右侧
 			const ownership = this.startElement.dataset.ownership;
-			// 获取开始元素的id
-			const startId = this.startElement.id;
-			// 判断开始元素是否已经完成连线·如果已完成，则遍历backLines，判断存储答案的集合中是否包含开始元素的id，存在则更新index
-			let index = -1;
-			for (let i = 0; i < this.backLines.length; i++) {
-				const item = this.backLines[i];
-				if (item.anwser.includes(startId)) {
-					index = i;
-					break;
+			// 获取开始元素和目标元素的值
+			const startValue = this.startElement.dataset.value!;
+			const endValue = this.endElement.dataset.value!;
+			// 判断开始元素是否已经连线
+			const keys = Object.keys(this.anwsers);
+			const values = Object.values(this.anwsers);
+			if (keys.includes(startValue) || values.includes(startValue)) {
+				// 已连线，处理步骤
+				// ① 找到已连线的目标元素的value·注意：可能在Map结构的左侧，也可能在右侧
+				let key = '';
+				let value = '';
+				for (let i = 0; i < keys.length; i++) {
+					const k = keys[i];
+					const v = values[i];
+					if ([k, v].includes(startValue)) {
+						key = k;
+						value = k === startValue ? v : k;
+						break;
+					}
 				}
-			}
-			// 如果元素已经完成连线，则需将连线的目标元素恢复成未连线状态，具体步骤
-			// ① 获取目标元素的ID
-			// ② 根据ID获取目标元素
-			// ③ 恢复目标元素的状态（标识+高亮状态）
-			// ④ 将对应的数据从记录中移出（因为后面会重新插入数据）
-			if (index !== -1) {
-				const tarElementId =
-					this.backLines[index].anwser[ownership === 'L' ? 1 : 0];
-				const tarElement = document.getElementById(tarElementId) as HTMLElement;
+				// ② 根据targetValue找到目标元素
+				const sel = `[data-value=${value}]`;
+				const tarElement = this.container.querySelector(sel) as HTMLElement;
+				// ③ 恢复目标元素的状态（标识+高亮状态）
 				tarElement.dataset.checked = '0';
 				tarElement.classList.remove(this.itemActiveCls);
-				this.backLines.splice(index, 1);
+				// ④ 将对应的数据从记录中移除（因为后面会重新插入数据）
+				delete this.anwsers[key];
+				const index = this.backLines.findIndex((item) => item.key === key);
+				if (index >= 0) {
+					this.backLines.splice(index, 1);
+				}
 			}
-
-			// 组装数据，存入记录
+			// 未连线
+			const k = ownership === 'L' ? startValue : endValue;
+			const v = ownership === 'L' ? endValue : startValue;
+			this.anwsers[k] = v;
+			this.onChange({ ...this.anwsers });
 			this.backLines.push({
-				anwser:
-					ownership === 'L'
-						? [this.startElement.id, this.endElement.id]
-						: [this.endElement.id, this.startElement.id],
+				key: k,
 				point: {
 					x1: +(x1 || 0),
 					y1: +(y1 || 0),
@@ -332,9 +332,6 @@ export default class MatchLine {
 					y2: +(y2 || 0)
 				}
 			});
-			this.anwsers = this.getAnwsers();
-			this.onChange([...this.anwsers]);
-			// 绘制连线结果
 			this.drawLines();
 		}
 
@@ -343,7 +340,7 @@ export default class MatchLine {
 		this.startElement = null;
 		this.endElement = null;
 		// 清空实际连线画布
-		this.ctx?.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+		this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		// 阻止事件冒泡/默认行为
 		event.stopPropagation();
 		event.preventDefault();
@@ -354,7 +351,7 @@ export default class MatchLine {
 	 */
 	private drawLines() {
 		if (!this.backCtx) return;
-		this.backCtx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+		this.backCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.backCtx.strokeStyle = this.strokeStyle;
 		this.backCtx.lineWidth = this.lineWidth;
 		this.backLines.map(({ point: { x1, x2, y1, y2 } }) => {
@@ -371,43 +368,52 @@ export default class MatchLine {
 	 * 触发时机：在创建示例时，如果传入了anwsers时调用
 	 */
 	private echoAnwsers() {
-		this.anwsers.forEach(([startId, endId]) => {
-			// 获取开始元素和目标元素
-			const startElement = document.getElementById(startId);
-			const endElement = document.getElementById(endId);
-			if (startElement && endElement) {
-				// 更新选中状态
-				startElement.dataset.checked = endElement.dataset.checked = '1';
-				// 高亮显示元素
-				startElement.classList.add(this.itemActiveCls);
-				endElement.classList.add(this.itemActiveCls);
-				// 计算坐标
-				const { anchorX: x1, anchorY: y1 } = startElement.dataset;
-				const { anchorX: x2, anchorY: y2 } = endElement.dataset;
-				// 拼装数据
-				this.backLines.push({
-					anwser: [startId, endId],
-					point: {
-						x1: +(x1 || 0),
-						y1: +(y1 || 0),
-						x2: +(x2 || 0),
-						y2: +(y2 || 0)
-					}
-				});
-				this.drawLines();
+		// 遍历Map结构，拿到key-value值 → key标识左侧/value标识右侧
+		const keys = Object.keys(this.anwsers);
+		keys.forEach((key) => {
+			if (this.anwsers.hasOwnProperty(key)) {
+				const value = this.anwsers[key];
+				// 获取开始元素和目标元素
+				const leftSel = `[data-value=${key}]`;
+				const rightSel = `[data-value=${value}]`;
+				const leftElement = this.container.querySelector<HTMLElement>(leftSel);
+				const rightElement =
+					this.container.querySelector<HTMLElement>(rightSel);
+				if (leftElement && rightElement) {
+					// 更新选中状态
+					leftElement.dataset.checked = rightElement.dataset.checked = '1';
+					// 高亮显示元素
+					leftElement.classList.add('active');
+					rightElement.classList.add('active');
+					// 计算坐标
+					const { anchorX: x1, anchorY: y1 } = leftElement.dataset;
+					const { anchorX: x2, anchorY: y2 } = rightElement.dataset;
+					// 拼装数据
+					this.backLines.push({
+						key,
+						point: {
+							x1: +(x1 || 0),
+							y1: +(y1 || 0),
+							x2: +(x2 || 0),
+							y2: +(y2 || 0)
+						}
+					});
+				}
 			}
 		});
+		this.drawLines();
 	}
 
 	/**
 	 * 重置画板
 	 */
 	public reset() {
-		this.backCtx?.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+		this.backCtx?.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		this.items.forEach((item) => {
 			item.classList.remove(this.itemActiveCls);
 			item.dataset.checked = '0';
 		});
+		this.anwsers = {};
 		this.backLines = [];
 	}
 
@@ -417,78 +423,81 @@ export default class MatchLine {
 	public undo() {
 		const line = this.backLines.pop();
 		if (line) {
-			const {
-				anwser: [startId, endId]
-			} = line;
-			const startElement = document.getElementById(startId);
-			const endElement = document.getElementById(endId);
-			if (startElement && endElement) {
-				startElement.dataset.checked = endElement.dataset.checked = '0';
-				startElement.classList.remove(this.itemActiveCls);
-				endElement.classList.remove(this.itemActiveCls);
+			const { key } = line;
+			const leftSel = `[data-value=${key}]`;
+			const rightSel = `[data-value=${this.anwsers[key]}]`;
+			delete this.anwsers[key];
+			const leftElement = this.container.querySelector<HTMLElement>(leftSel);
+			const rightElement = this.container.querySelector<HTMLElement>(rightSel);
+			if (leftElement && rightElement) {
+				leftElement.dataset.checked = rightElement.dataset.checked = '0';
+				leftElement.classList.remove(this.itemActiveCls);
+				rightElement.classList.remove(this.itemActiveCls);
 				this.drawLines();
 			}
 		}
 	}
 	/**
 	 * 获取连线结果
-	 * 数据结构：[[id1, id2], [id3, id4]...]
 	 * @returns
 	 */
 	public getAnwsers() {
-		const anwsers: MatchLineAnwsersProps = [];
-		this.backLines.forEach(({ anwser }) => anwsers.push([...anwser]));
-		return anwsers;
+		return { ...this.anwsers };
 	}
 
 	/**
 	 * 纠错
 	 */
 	public checkAnwsers() {
-		if (this.anwsers.length <= 0 || !this.backCtx) return;
-		const lines: CheckAnwserItemProps[] = [];
-
-		this.anwsers.forEach(([startId, endId]) => {
-			/****************
-			 * 找到用户连线的数据
-			 ****************/
-			// 获取开始元素和目标元素
-			const startElement = document.getElementById(startId);
-			const endElement = document.getElementById(endId);
-			if (startElement && endElement) {
-				// 更新选中状态
-				startElement.dataset.checked = endElement.dataset.checked = '1';
-				// 高亮显示元素
-				startElement.classList.add(this.itemActiveCls);
-				endElement.classList.add(this.itemActiveCls);
-				// 计算坐标
-				const { anchorX: x1, anchorY: y1 } = startElement.dataset;
-				const { anchorX: x2, anchorY: y2 } = endElement.dataset;
+		// 获取答案keys
+		const keys = Object.keys(this.anwsers);
+		// 异常处理
+		if (!this.standardAnwsers || !this.backCtx || keys.length === 0) return;
+		// 定义变量，记录连线信息
+		const lines: CheckAnwsersItemProps[] = [];
+		// 遍历keys
+		keys.forEach((key) => {
+			if (this.anwsers.hasOwnProperty(key)) {
+				const value = this.anwsers[key];
 				/****************
-				 * 处理纠错逻辑
+				 * 找到用户连线的数据
 				 ****************/
-				// 找到当前连线数据对应的标准答案
-				const standardAnwser = this.standardAnwsers!.find(
-					(item) => item[0] === startId
-				);
-				// 拼装数据
-				if (standardAnwser) {
+				const leftSel = `[data-value=${key}]`;
+				const rightSel = `[data-value=${value}]`;
+				const leftElement = this.container.querySelector<HTMLElement>(leftSel);
+				const rightElement =
+					this.container.querySelector<HTMLElement>(rightSel);
+				if (leftElement && rightElement) {
+					// 更新选中状态
+					leftElement.dataset.checked = rightElement.dataset.checked = '1';
+					// 高亮显示元素
+					leftElement.classList.add('active');
+					rightElement.classList.add('active');
+					// 计算坐标
+					const { anchorX: x1, anchorY: y1 } = leftElement.dataset;
+					const { anchorX: x2, anchorY: y2 } = rightElement.dataset;
+					/****************
+					 * 处理纠错逻辑
+					 ****************/
+					// 获取答案
+					const anwser = this.standardAnwsers![key];
+					// 拼装数据
 					lines.push({
+						isOk: value === anwser,
 						point: {
 							x1: +(x1 || 0),
 							y1: +(y1 || 0),
 							x2: +(x2 || 0),
 							y2: +(y2 || 0)
-						},
-						isOk: endId === standardAnwser[1]
+						}
 					});
 				}
 			}
 		});
 		// 绘制模拟连线画板
-		this.backCtx.clearRect(0, 0, this.canvasWidth, this.canvasHeight);
+		this.backCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		lines.forEach(({ isOk, point: { x1, y1, x2, y2 } }) => {
-			this.backCtx!.strokeStyle = isOk ? 'green' : 'red';
+			this.backCtx!.strokeStyle = isOk ? '#3CB371' : '#DC143C';
 			this.backCtx!.beginPath();
 			this.backCtx!.moveTo(x1, y1);
 			this.backCtx!.lineTo(x2, y2);
