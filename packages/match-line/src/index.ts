@@ -45,8 +45,8 @@ export interface MatchLineConfigs {
 	standardAnwsers?: MatchLineOption;
 	/** 是否禁用·可选（在查看试卷详情以及纠错时必传true） */
 	disabled?: boolean;
-	/** 初始化时是否显示锚点 */
-	showAnchorOnInit?: boolean;
+	/** 是否开启调试模式，默认false */
+	debug?: boolean;
 	/** 每一次连线成功的回调·参数为连线结果集 */
 	onChange: (anwsers: MatchLineOption) => void;
 }
@@ -84,6 +84,8 @@ export default class MatchLine {
 	private anwsers: MatchLineOption;
 	/** 每一次连线成功的回调 */
 	private onChange: (anwsers: MatchLineOption) => void;
+	/** 是否开启调试模式，默认false */
+	private debug: boolean;
 
 	/**
 	 * 构造函数
@@ -97,12 +99,12 @@ export default class MatchLine {
 			backCanvas,
 			items,
 			itemActiveCls = 'active',
-			strokeStyle = 'blue',
-			lineWidth = 2,
+			strokeStyle = '#6495ED',
+			lineWidth = 1,
 			anwsers,
 			standardAnwsers,
 			disabled = false,
-			showAnchorOnInit,
+			debug = false,
 			onChange
 		} = options;
 
@@ -113,6 +115,7 @@ export default class MatchLine {
 		this.anwsers = anwsers || {};
 		this.standardAnwsers = standardAnwsers;
 		this.disabled = disabled;
+		this.debug = debug;
 		this.onChange = onChange;
 
 		// 画布 & 画笔相关
@@ -126,9 +129,9 @@ export default class MatchLine {
 		const { width, height } = container.getBoundingClientRect();
 		canvas.width = backCanvas.width = width;
 		canvas.height = backCanvas.height = height;
-
+		this.debug && console.log('[MatchLine]：初始化成功');
 		// 计算元素信息
-		this.calcRect(items, showAnchorOnInit);
+		this.calcRect(items);
 		// 事件监听
 		items.forEach((item) => (item.onmousedown = this.mousedown.bind(this)));
 		document.onmousemove = this.mousemove.bind(this);
@@ -144,28 +147,31 @@ export default class MatchLine {
 	 * @param canvas
 	 * @param items
 	 */
-	private calcRect(items: NodeListOf<HTMLElement>, showAnchorOnInit?: boolean) {
+	private calcRect(items: NodeListOf<HTMLElement>) {
 		items.forEach((item) => {
+			// 每一次重载时，清除连线状态
+			item.classList.remove(this.itemActiveCls);
 			// 获取元素在屏幕上的信息
 			const { width, height } = item.getBoundingClientRect();
 			// 获取元素归属：左侧还是右侧·用于计算元素锚点坐标
 			const ownership = item.dataset.ownership;
 			// 记录元素锚点坐标
-			const anchorX =
-				ownership === 'L' ? item.offsetLeft + width : item.offsetLeft;
+			const isLeft = ownership === 'L';
+			const anchorX = isLeft ? item.offsetLeft + width : item.offsetLeft;
 			const anchorY = item.offsetTop + height / 2;
 			item.dataset.anchorX = String(anchorX);
 			item.dataset.anchorY = String(anchorY);
 			// 标识当前元素是否连线
 			item.dataset.checked = '0';
-			// 绘制锚点，查看锚点位置是否准确（临时代码）
-			if (showAnchorOnInit) {
+			// 绘制锚点，查看锚点位置是否准确（调试模式时呈现）
+			if (this.debug) {
 				this.ctx?.beginPath();
 				this.ctx?.arc(anchorX, anchorY, 4, 0, Math.PI * 2);
 				this.ctx?.stroke();
 				this.ctx?.closePath();
 			}
 		});
+		this.debug && console.log('[MatchLien]：元素锚点信息已挂载');
 	}
 
 	/**
@@ -435,6 +441,8 @@ export default class MatchLine {
 				rightElement.classList.remove(this.itemActiveCls);
 				this.drawLines();
 			}
+		} else {
+			this.debug && console.log('[MatchLine]：当前无可撤销的记录');
 		}
 	}
 	/**
