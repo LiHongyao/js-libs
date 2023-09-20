@@ -1,5 +1,17 @@
 # @likg/match-line
 
+## 1.0.7
+
+### Patch Changes
+
+- 打包更新
+
+## 1.0.6
+
+### Patch Changes
+
+- 优化处理,更新选项结构
+
 ## 1.0.5
 
 ### Patch Changes
