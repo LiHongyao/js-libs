@@ -1,5 +1,11 @@
 # @likg/match-line
 
+## 1.0.8
+
+### Patch Changes
+
+- 移除阻止事件默认行为相关的代码
+
 ## 1.0.7
 
 ### Patch Changes

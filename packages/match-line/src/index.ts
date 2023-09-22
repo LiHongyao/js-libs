@@ -167,6 +167,7 @@ export default class MatchLine {
 		items.forEach((item) => (item.onmousedown = this.mousedown.bind(this)));
 		document.onmousemove = this.mousemove.bind(this);
 		document.onmouseup = this.mouseup.bind(this);
+		console.log(items);
 		// 判断是否渲染连线
 		if (anwsers) {
 			this.echoAnwsers();
@@ -225,9 +226,6 @@ export default class MatchLine {
 		this.startPoint.y = +itemElement.dataset.anchorY!;
 		// 标识触发连线，用于在mousemove中判断是否需要处理后续的逻辑
 		this.trigger = true;
-		// 阻止事件冒泡/默认行为
-		event.stopPropagation();
-		event.preventDefault();
 	}
 	/**
 	 * 鼠标按下+移动
@@ -290,16 +288,13 @@ export default class MatchLine {
 				'0';
 			this.endElement = null;
 		}
-		// 阻止事件冒泡/默认行为
-		event.stopPropagation();
-		event.preventDefault();
 	}
 
 	/**
 	 * 鼠标抬起
 	 * @returns
 	 */
-	private mouseup(event: MouseEvent) {
+	private mouseup() {
 		if (!this.trigger) return;
 
 		// 如果开始元素存在且未被连线，则恢复开始元素的状态
@@ -375,9 +370,6 @@ export default class MatchLine {
 		this.endElement = null;
 		// 清空实际连线画布
 		this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height);
-		// 阻止事件冒泡/默认行为
-		event.stopPropagation();
-		event.preventDefault();
 	}
 	/**
 	 * 模拟连线
