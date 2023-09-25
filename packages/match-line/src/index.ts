@@ -162,12 +162,11 @@ export default class MatchLine {
 		canvas.height = backCanvas.height = height;
 		this.debug && console.log('[MatchLine]：初始化成功');
 		// 计算元素信息
-		this.calcRect(items);
+		this.convertItems(items);
 		// 事件监听
 		items.forEach((item) => (item.onmousedown = this.mousedown.bind(this)));
 		document.onmousemove = this.mousemove.bind(this);
 		document.onmouseup = this.mouseup.bind(this);
-		console.log(items);
 		// 判断是否渲染连线
 		if (anwsers) {
 			this.echoAnwsers();
@@ -175,27 +174,50 @@ export default class MatchLine {
 	}
 
 	/**
+	 * 计算连线元素在屏幕的位置
+	 * @param element
+	 * @returns
+	 */
+	private calcRect(element: HTMLElement) {
+		const { width, height } = element.getBoundingClientRect();
+		let parentElement = element.offsetParent as HTMLElement | null;
+		const rect = {
+			top: element.offsetTop,
+			left: element.offsetLeft,
+			width,
+			height
+		};
+		while (parentElement) {
+			rect.top += parentElement.offsetTop;
+			rect.left += parentElement.offsetLeft;
+			parentElement = parentElement.offsetParent as HTMLElement | null;
+		}
+		return rect;
+	}
+
+	/**
 	 * 计算节点信息
 	 * @param canvas
 	 * @param items
 	 */
-	private calcRect(items: NodeListOf<HTMLElement>) {
+	private convertItems(items: NodeListOf<HTMLElement>) {
+		// 获取canvas相对于屏幕的坐标
+		const { left: canvasLeft, top: canvasTop } = this.calcRect(this.canvas);
 		items.forEach((item) => {
 			// 每一次重载时，清除连线状态（响应式框架在组件刷新后会复用组件）
 			item.classList.remove(this.itemActiveCls);
-			// 获取元素在屏幕上的信息
-			const { width, height } = item.getBoundingClientRect();
 			// 获取元素归属：左侧还是右侧·用于计算元素锚点坐标
 			const ownership = item.dataset.ownership;
+			// 获取元素在屏幕上的信息
+			const { left, top, width, height } = this.calcRect(item);
 			// 记录元素锚点坐标
-			const isLeft = ownership === 'L';
-			const anchorX = isLeft ? item.offsetLeft + width : item.offsetLeft;
-			const anchorY = item.offsetTop + height / 2;
+			const anchorX = left - canvasLeft + (ownership === 'L' ? width : 0);
+			const anchorY = top - canvasTop + height / 2;
 			item.dataset.anchorX = String(anchorX);
 			item.dataset.anchorY = String(anchorY);
 			// 标识当前元素是否连线
 			item.dataset.checked = '0';
-			// 标识当前元素为连线元素
+			// 标识当前元素为连线元素s
 			item.dataset.tag = this.tag;
 			// 绘制锚点，查看锚点位置是否准确（调试模式时呈现）
 			if (this.debug) {

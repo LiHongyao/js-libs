@@ -1,5 +1,11 @@
 # @likg/match-line
 
+## 1.0.9
+
+### Patch Changes
+
+- 优化计算连线元素坐标算法
+
 ## 1.0.8
 
 ### Patch Changes
