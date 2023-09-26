@@ -672,7 +672,7 @@ class Tools {
 				if (Object.prototype.hasOwnProperty.call(source, key)) {
 					// 判断 source 子元素是否为对象
 					if (source[key] && typeof source[key] === 'object') {
-						//  如果是，递归复制
+						// 如果是，递归复制
 						cloneObj[key] = Tools.deepClone(source[key]);
 					} else {
 						// 如果不是，简单复制
@@ -687,18 +687,18 @@ class Tools {
 	 * 更新对象，支持namePath形式
 	 * 如果你需要深拷贝更新，请试用Tools.deepUpdate
 	 * @param source  原始对象
-	 * @param keyPath eg: 'user' or 'user.name'
+	 * @param namePath eg: 'user' or 'user.name'
 	 * @param value   更新值
 	 */
-	public static update(
-		source: Record<string, any>,
-		keyPath: string,
+	public static update<T = Record<string, any>>(
+		source: T,
+		namePath: string,
 		value: any
 	) {
-		if (/\./.test(keyPath)) {
+		if (/\./.test(namePath)) {
 			let cash: any = source;
 			let i = 0;
-			const keys = keyPath.split('.');
+			const keys = namePath.split('.');
 			while (i < keys.length - 1) {
 				const k = keys[i++];
 				if (k in cash) {
@@ -710,24 +710,24 @@ class Tools {
 			}
 			cash[keys[keys.length - 1]] = value;
 		} else {
-			source[keyPath] = value;
+			source[namePath as keyof T] = value;
 		}
 		return source;
 	}
 	/**
 	 * 深拷贝更新对象值
 	 * @param source  原始对象
-	 * @param keyPath eg: 'user' or 'user.name'
+	 * @param namePath eg: 'user' or 'user.name'
 	 * @param value   更新值
 	 * @returns
 	 */
-	public static deepUpdate(
-		source: Record<string, any>,
-		keyPath: string,
+	public static deepUpdate<T = Record<string, any>>(
+		source: T,
+		namePath: string,
 		value: any
 	) {
-		const o = Tools.deepClone(source);
-		return Tools.update(o, keyPath, value);
+		const o = Tools.deepClone<T>(source);
+		return Tools.update<T>(o, namePath, value);
 	}
 
 	/**
@@ -758,7 +758,7 @@ class Tools {
 	 * @returns
 	 */
 	public static debounce(cb: (...args: any) => void, delay = 500) {
-		let t: number | null = null;
+		let t: any = null;
 		return (...args: any) => {
 			t && clearTimeout(t);
 			t = setTimeout(() => {

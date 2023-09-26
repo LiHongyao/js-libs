@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.3
+
+### Patch Changes
+
+- 优化深拷贝变更数据
+
 ## 1.0.2
 
 ### Patch Changes
