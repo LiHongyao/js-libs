@@ -51,8 +51,6 @@ export type MatchLineAnwsers = Record<string, string>;
  * 连线题配置项
  */
 export interface MatchLineConfigs {
-	/** id */
-	id: string;
 	/** 外层容器·包裹canvas和左右布局元素的容器，布局结构：div.container>div.leftItems+div.rightItem+canvas+backCanvas */
 	container: HTMLElement;
 	/** 实际连线标签Canvas */
@@ -72,6 +70,8 @@ export interface MatchLineConfigs {
 	standardAnwsers?: MatchLineAnwsers;
 	/** 是否禁用·可选（在查看试卷详情以及纠错时必传true） */
 	disabled?: boolean;
+	/** 是否纠错（为true时必传 anwsers 和 standardAnwsers 字段） */
+	checkAnwsers?: boolean;
 	/** 是否开启调试模式，默认false */
 	debug?: boolean;
 	/** 每一次连线成功的回调·参数为连线结果集 */
@@ -123,7 +123,6 @@ export default class MatchLine {
 	constructor(options: MatchLineConfigs) {
 		// 解构Options
 		const {
-			id,
 			container,
 			canvas,
 			backCanvas,
@@ -133,13 +132,14 @@ export default class MatchLine {
 			lineWidth = 1,
 			anwsers,
 			standardAnwsers,
+			checkAnwsers = false,
 			disabled = false,
 			debug = false,
 			onChange
 		} = options;
 
 		// 存储变量
-		this.tag = id + '__' + Math.random().toString(36).slice(2);
+		this.tag = 'v__' + Math.random().toString(36).slice(2);
 		this.container = container;
 		this.items = items;
 		this.itemActiveCls = itemActiveCls;
@@ -167,8 +167,10 @@ export default class MatchLine {
 		items.forEach((item) => (item.onmousedown = this.mousedown.bind(this)));
 		document.onmousemove = this.mousemove.bind(this);
 		document.onmouseup = this.mouseup.bind(this);
-		// 判断是否渲染连线
-		if (anwsers) {
+		// 判断是否纠错以及渲染连线
+		if (checkAnwsers && anwsers && standardAnwsers) {
+			this.checkAnwsers();
+		} else if (anwsers) {
 			this.echoAnwsers();
 		}
 	}

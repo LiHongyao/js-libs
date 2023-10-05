@@ -50,7 +50,6 @@ export type MatchLineAnwsers = Record<string, string>;
 
 | 属性            | 数据类型                                  | 描述                                                         |
 | --------------- | ----------------------------------------- | ------------------------------------------------------------ |
-| id              | string                                    | 用于构造tag，标识当前连线题元素，避免在有多道连线题出现连线错误 |
 | container       | HTMLElement                               | 外层容器·包裹canvas和左右布局元素的容器<br />布局结构：div.container>div.leftItems+div.rightItem+canvas+backCanvas |
 | canvas          | HTMLCanvasElement                         | 实际连线标签Canvas                                           |
 | backCanvas      | HTMLCanvasElement                         | 模拟连线标签Canvas                                           |
@@ -60,9 +59,12 @@ export type MatchLineAnwsers = Record<string, string>;
 | lineWidth       | number                                    | 「可选」画笔粗细，默认：1                                    |
 | anwsers         | MatchLineAnwsers                          | 「可选」用户连线答案·可选（在查看试卷详情以及纠错时必传      |
 | standardAnwsers | MatchLineAnwsers                          | 「可选」标准答案（在纠错时必传）                             |
+| checkAnwsers    | boolean                                   | 「可选」是否纠错<br/>为true时必传 anwsers 和 standardAnwsers 字段） |
 | disabled        | boolean                                   | 「可选」是否禁用（在查看试卷详情以及纠错时必传true）         |
 | debug           | boolean                                   | 「可选」是否启用调式模式                                     |
 | onChange        | (anwsers: MatchLineAnwsers) => void       | 每一次连线成功的回调·参数为连线结果集                        |
+
+
 
 # APIs
 
@@ -146,7 +148,6 @@ const Test: React.FC = React.memo(() => {
     // -- 初始化连线库
     if (container && items && canvas && backCanvas) {
       const matching = new MatchLine({
-        id: 'match',
         container: container as HTMLElement,
         items: items as NodeListOf<HTMLElement>,
         canvas: canvas as HTMLCanvasElement,
