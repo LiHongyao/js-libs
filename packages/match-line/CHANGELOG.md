@@ -1,5 +1,11 @@
 # @likg/match-line
 
+## 1.0.10
+
+### Patch Changes
+
+- 87cb1f1: '新增初始纠错'
+
 ## 1.0.9
 
 ### Patch Changes
