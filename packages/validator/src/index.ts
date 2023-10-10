@@ -121,7 +121,7 @@ class Validator {
 			return false;
 		}
 		try {
-			var obj = JSON.parse(target);
+			const obj = JSON.parse(target);
 			if (obj && typeof obj === 'object') {
 				return true;
 			} else {
