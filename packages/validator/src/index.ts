@@ -116,7 +116,7 @@ class Validator {
 	 * @param target
 	 * @returns
 	 */
-	isJSON(target: any) {
+	public static isJSON(target: any) {
 		if (typeof target !== 'string') {
 			return false;
 		}

@@ -1,5 +1,11 @@
 # @likg/validator
 
+## 1.0.3
+
+### Patch Changes
+
+- "将isJSON变为静态方法"
+
 ## 1.0.2
 
 ### Patch Changes
