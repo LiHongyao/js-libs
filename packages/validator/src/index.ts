@@ -111,6 +111,26 @@ class Validator {
 		}
 		return false;
 	}
+	/**
+	 * 校验目标值是否是一个JSON字符串
+	 * @param target
+	 * @returns
+	 */
+	isJSON(target: any) {
+		if (typeof target !== 'string') {
+			return false;
+		}
+		try {
+			var obj = JSON.parse(target);
+			if (obj && typeof obj === 'object') {
+				return true;
+			} else {
+				return false;
+			}
+		} catch (e) {
+			return false;
+		}
+	}
 }
 
 export default Validator;

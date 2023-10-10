@@ -10,6 +10,8 @@
 $ npm install @likg/validator
 # OR
 $ yarn add @likg/validator
+# OR
+$ pnpm i @likg/validator
 ```
 
 2. 使用
@@ -93,4 +95,10 @@ static isValidDate(date: Date): boolean;
  * @returns
  */
 static isToday(v: Date | string | number): boolean;
+/**
+ * 校验目标值是否是一个JSON字符串
+ * @param target
+ * @returns
+ */
+isJSON(target: any): boolean;
 ```
