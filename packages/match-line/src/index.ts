@@ -75,7 +75,7 @@ export interface MatchLineConfigs {
 	/** 是否开启调试模式，默认false */
 	debug?: boolean;
 	/** 每一次连线成功的回调·参数为连线结果集 */
-	onChange: (anwsers: MatchLineAnwsers) => void;
+	onChange?: (anwsers: MatchLineAnwsers) => void;
 }
 
 export default class MatchLine {
@@ -114,7 +114,7 @@ export default class MatchLine {
 	/** 标识，用于判断连线元素，生成规则：id+随机字符 */
 	private tag: string;
 	/** 每一次连线成功的回调 */
-	private onChange: (anwsers: MatchLineAnwsers) => void;
+	private onChange?: (anwsers: MatchLineAnwsers) => void;
 
 	/**
 	 * 构造函数
@@ -375,7 +375,7 @@ export default class MatchLine {
 			const k = ownership === 'L' ? startValue : endValue;
 			const v = ownership === 'L' ? endValue : startValue;
 			this.anwsers[k] = v;
-			this.onChange({ ...this.anwsers });
+			this.onChange && this.onChange({ ...this.anwsers });
 			this.backLines.push({
 				key: k,
 				point: {
@@ -466,7 +466,7 @@ export default class MatchLine {
 		});
 		this.anwsers = {};
 		this.backLines = [];
-		this.onChange({ ...this.anwsers });
+		this.onChange && this.onChange({ ...this.anwsers });
 	}
 
 	/**
@@ -489,7 +489,7 @@ export default class MatchLine {
 				rightElement.classList.remove(this.itemActiveCls);
 				this.drawLines();
 			}
-			this.onChange({ ...this.anwsers });
+			this.onChange && this.onChange({ ...this.anwsers });
 		} else {
 			this.debug && console.log('[MatchLine]：当前无可撤销的记录');
 		}

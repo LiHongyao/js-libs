@@ -1,5 +1,11 @@
 # @likg/match-line
 
+## 1.0.11
+
+### Patch Changes
+
+- 将onChange设置为可选配置
+
 ## 1.0.10
 
 ### Patch Changes
