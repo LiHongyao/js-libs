@@ -1,6 +1,6 @@
 {
 	"name": "@likg/match-line",
-	"version": "1.0.12",
+	"version": "1.0.13",
 	"description": "js+canvas 连线题",
 	"type": "module",
 	"types": "./dist/index.d.ts",

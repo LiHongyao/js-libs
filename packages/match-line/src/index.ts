@@ -161,8 +161,9 @@ export default class MatchLine {
 		this.convertItems(items);
 		// 事件监听
 		items.forEach((item) => (item.onmousedown = this.mousedown.bind(this)));
-		document.onmousemove = this.mousemove.bind(this);
-		document.onmouseup = this.mouseup.bind(this);
+		container.onmousemove = this.mousemove.bind(this);
+		container.onmouseup = this.mouseup.bind(this);
+		container.onmouseleave = this.mouseleave.bind(this);
 		// 判断是否纠错以及渲染连线
 		if (checkAnswers && answers && standardAnswers) {
 			this.checkAnswers();
@@ -390,6 +391,18 @@ export default class MatchLine {
 		this.endElement = null;
 		// 清空实际连线画布
 		this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height);
+	}
+
+	/**
+	 * 鼠标移出容器边界
+	 * @returns
+	 */
+	private mouseleave() {
+		if (!this.trigger || !this.startElement) return;
+		this.startElement.classList.remove(this.itemActiveCls);
+		this.ctx?.clearRect(0, 0, this.canvas.width, this.canvas.height);
+		this.startElement = null;
+		this.trigger = false;
 	}
 	/**
 	 * 模拟连线

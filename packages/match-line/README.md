@@ -118,12 +118,12 @@ export type MatchLineAnwsers = Record<string, string>;
 
 ## 代码示例（react）
 
-**`Test.tsx`**
+**`QuestionMatchLine.tsx`**
 
 ```tsx
-import React, { useEffect, useState } from 'react';
-import MatchLine from '@likg/match-line';
-import './MatchingQuestion.less';
+import React, { useEffect, useRef, useState } from 'react';
+import './QuestionMatchLine.less';
+import MatchLine from './m';
 
 // -- 数据源
 const dataSource = [
@@ -134,38 +134,39 @@ const dataSource = [
 ];
 
 // -- 标准答案
-const standardAnwsers = {
+const standardAnswers = {
   水果: '🍌',
   动物: '🐒',
   汽车: '🚗',
   蔬菜: '🥕',
 };
 
-const Test: React.FC = React.memo(() => {
+const QuestionMatchLine: React.FC = React.memo(() => {
   const [matchLine, setMatchLine] = useState<MatchLine | null>(null);
 
-  useEffect(() => {
-    // -- 获取元素
-    const container = document.querySelector('.match-line .contents');
-    const items = document.querySelectorAll('.match-line .option');
-    const canvas = document.querySelector('#canvas');
-    const backCanvas = document.querySelector('#backCanvas');
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const backCanvasRef = useRef<HTMLCanvasElement | null>(null);
 
+  useEffect(() => {
     // -- 初始化连线库
-    if (container && items && canvas && backCanvas) {
-      const matching = new MatchLine({
-        container: container as HTMLElement,
-        items: items as NodeListOf<HTMLElement>,
-        canvas: canvas as HTMLCanvasElement,
-        backCanvas: backCanvas as HTMLCanvasElement,
-        itemActiveCls: 'active',
-        standardAnwsers,
-        debug: true,
-        onChange: (anwsers) => {
-          console.log(anwsers);
-        },
-      });
-      setMatchLine(matching);
+    if (canvasRef.current && backCanvasRef.current && containerRef.current) {
+      const items = containerRef.current.querySelectorAll('.option');
+      if (items.length > 0) {
+        const matching = new MatchLine({
+          container: containerRef.current,
+          items: items as NodeListOf<HTMLElement>,
+          canvas: canvasRef.current,
+          backCanvas: backCanvasRef.current,
+          itemActiveCls: 'active',
+          standardAnswers,
+          debug: true,
+          onChange: (anwsers) => {
+            console.log(anwsers);
+          },
+        });
+        setMatchLine(matching);
+      }
     }
   }, []);
 
@@ -189,29 +190,28 @@ const Test: React.FC = React.memo(() => {
         <button onClick={() => matchLine?.undo()}>撤销</button>
         <button
           onClick={() => {
-            const anwsers = matchLine?.getAnwsers();
+            const anwsers = matchLine?.getAnswers();
             console.log(anwsers);
           }}
         >
           查询
         </button>
-        <button onClick={() => matchLine?.checkAnwsers()}>纠错</button>
+        <button onClick={() => matchLine?.checkAnswers()}>纠错</button>
       </div>
-      <div className="contents">
+      <div className="contents" ref={containerRef}>
         <div className="leftOptions">{renderItems('L')}</div>
         <div className="rightOptions">{renderItems('R')}</div>
-        <canvas id="canvas"></canvas>
-        <canvas id="backCanvas"></canvas>
+        <canvas ref={canvasRef}></canvas>
+        <canvas ref={backCanvasRef}></canvas>
       </div>
     </div>
   );
 });
 
-export default Test;
-
+export default QuestionMatchLine;
 ```
 
-**`Test.less`**
+**`QuestionMatchLine.less`**
 
 ```less
 .match-line {

@@ -1,5 +1,11 @@
 # @likg/match-line
 
+## 1.0.13
+
+### Patch Changes
+
+- 优化处理,拖拽连线时超出容器边界取消连线
+
 ## 1.0.12
 
 ### Patch Changes
