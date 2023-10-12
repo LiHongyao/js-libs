@@ -4,22 +4,6 @@
  * HomePage：https://github.com/lihongyao
  */
 
-// --> 选项数据结构
-/*const 选项数据结构 = [
-  { leftOption: '水果', rightOption: '🥕' },
-  { leftOption: '动物', rightOption: '🚗' },
-  { leftOption: '汽车', rightOption: '🐒' },
-  { leftOption: '蔬菜', rightOption: '🍌' },
-];*/
-
-// --> 答案数据结构
-/*const 答案数据结构 = {
-  水果: '🥕',
-  动物: '🚗',
-  汽车: '🐒',
-  蔬菜: '🍌',
-};*/
-
 interface Point {
 	x1: number;
 	y1: number;
@@ -30,7 +14,7 @@ interface BackLinesItemProps {
 	key: string;
 	point: Point;
 }
-interface CheckAnwsersItemProps {
+interface CheckAnswersItemProps {
 	isOk: boolean;
 	point: Point;
 }
@@ -46,7 +30,7 @@ export type MatchLineOptions = Array<{
 /**
  * 连线题答案数据结构
  */
-export type MatchLineAnwsers = Record<string, string>;
+export type MatchLineAnswers = Record<string, string>;
 /**
  * 连线题配置项
  */
@@ -65,17 +49,21 @@ export interface MatchLineConfigs {
 	strokeStyle?: string | CanvasGradient | CanvasPattern;
 	lineWidth?: number;
 	/** 用户连线答案·可选（在查看试卷详情以及纠错时必传） */
-	anwsers?: MatchLineAnwsers;
+	answers?: MatchLineAnswers;
 	/** 标准答案·可选（在纠错时必传） */
-	standardAnwsers?: MatchLineAnwsers;
+	standardAnswers?: MatchLineAnswers;
 	/** 是否禁用·可选（在查看试卷详情以及纠错时必传true） */
 	disabled?: boolean;
-	/** 是否纠错（为true时必传 anwsers 和 standardAnwsers 字段） */
-	checkAnwsers?: boolean;
+	/** 是否纠错（为true时必传 answers 和 standardAnswers 字段） */
+	checkAnswers?: boolean;
+	/** 正确连线颜色，默认值：'#3CB371' */
+	correctlineColor?: string;
+	/** 错误连线颜色，默认值：'#DC143C' */
+	mislineColor?: string;
 	/** 是否开启调试模式，默认false */
 	debug?: boolean;
 	/** 每一次连线成功的回调·参数为连线结果集 */
-	onChange?: (anwsers: MatchLineAnwsers) => void;
+	onChange?: (answers: MatchLineAnswers) => void;
 }
 
 export default class MatchLine {
@@ -104,9 +92,13 @@ export default class MatchLine {
 	/** 记录已经连接好的线（用于回显、撤销和重置） */
 	private backLines: BackLinesItemProps[] = [];
 	/** 用户连线答案 */
-	private anwsers: MatchLineAnwsers;
+	private answers: MatchLineAnswers;
 	/** 标准答案，用于纠错 */
-	private standardAnwsers?: MatchLineAnwsers;
+	private standardAnswers?: MatchLineAnswers;
+	/** 正确连线颜色，默认值：'#3CB371' */
+	private correctlineColor: string;
+	/** 错误连线颜色，默认值：'#DC143C' */
+	private mislineColor: string;
 	/** 是否禁用 */
 	private disabled: boolean;
 	/** 是否开启调试模式，默认false */
@@ -114,7 +106,7 @@ export default class MatchLine {
 	/** 标识，用于判断连线元素，生成规则：id+随机字符 */
 	private tag: string;
 	/** 每一次连线成功的回调 */
-	private onChange?: (anwsers: MatchLineAnwsers) => void;
+	private onChange?: (answers: MatchLineAnswers) => void;
 
 	/**
 	 * 构造函数
@@ -130,9 +122,11 @@ export default class MatchLine {
 			itemActiveCls = 'active',
 			strokeStyle = '#6495ED',
 			lineWidth = 1,
-			anwsers,
-			standardAnwsers,
-			checkAnwsers = false,
+			answers,
+			standardAnswers,
+			checkAnswers = false,
+			correctlineColor = '#3CB371',
+			mislineColor = '#DC143C',
 			disabled = false,
 			debug = false,
 			onChange
@@ -143,8 +137,10 @@ export default class MatchLine {
 		this.container = container;
 		this.items = items;
 		this.itemActiveCls = itemActiveCls;
-		this.anwsers = anwsers || {};
-		this.standardAnwsers = standardAnwsers;
+		this.answers = answers || {};
+		this.standardAnswers = standardAnswers;
+		this.correctlineColor = correctlineColor;
+		this.mislineColor = mislineColor;
 		this.disabled = disabled;
 		this.debug = debug;
 		this.onChange = onChange;
@@ -168,10 +164,10 @@ export default class MatchLine {
 		document.onmousemove = this.mousemove.bind(this);
 		document.onmouseup = this.mouseup.bind(this);
 		// 判断是否纠错以及渲染连线
-		if (checkAnwsers && anwsers && standardAnwsers) {
-			this.checkAnwsers();
-		} else if (anwsers) {
-			this.echoAnwsers();
+		if (checkAnswers && answers && standardAnswers) {
+			this.checkAnswers();
+		} else if (answers) {
+			this.echoAnswers();
 		}
 	}
 
@@ -341,8 +337,8 @@ export default class MatchLine {
 			const startValue = this.startElement.dataset.value!;
 			const endValue = this.endElement.dataset.value!;
 			// 判断开始元素是否已经连线
-			const keys = Object.keys(this.anwsers);
-			const values = Object.values(this.anwsers);
+			const keys = Object.keys(this.answers);
+			const values = Object.values(this.answers);
 			if (keys.includes(startValue) || values.includes(startValue)) {
 				// 已连线，处理步骤
 				// ① 找到已连线的目标元素的value·注意：可能在Map结构的左侧，也可能在右侧
@@ -365,7 +361,7 @@ export default class MatchLine {
 				tarElement.dataset.checked = '0';
 				tarElement.classList.remove(this.itemActiveCls);
 				// ④ 将对应的数据从记录中移除（因为后面会重新插入数据）
-				delete this.anwsers[key];
+				delete this.answers[key];
 				const index = this.backLines.findIndex((item) => item.key === key);
 				if (index >= 0) {
 					this.backLines.splice(index, 1);
@@ -374,8 +370,8 @@ export default class MatchLine {
 			// 未连线
 			const k = ownership === 'L' ? startValue : endValue;
 			const v = ownership === 'L' ? endValue : startValue;
-			this.anwsers[k] = v;
-			this.onChange && this.onChange({ ...this.anwsers });
+			this.answers[k] = v;
+			this.onChange && this.onChange({ ...this.answers });
 			this.backLines.push({
 				key: k,
 				point: {
@@ -415,14 +411,14 @@ export default class MatchLine {
 
 	/**
 	 * 回显连线
-	 * 触发时机：在创建示例时，如果传入了anwsers时调用
+	 * 触发时机：在创建示例时，如果传入了answers时调用
 	 */
-	private echoAnwsers() {
+	private echoAnswers() {
 		// 遍历Map结构，拿到key-value值 → key标识左侧/value标识右侧
-		const keys = Object.keys(this.anwsers);
+		const keys = Object.keys(this.answers);
 		keys.forEach((key) => {
-			if (this.anwsers.hasOwnProperty(key)) {
-				const value = this.anwsers[key];
+			if (this.answers.hasOwnProperty(key)) {
+				const value = this.answers[key];
 				// 获取开始元素和目标元素
 				const leftSel = `[data-value="${key}"]`;
 				const rightSel = `[data-value="${value}"]`;
@@ -464,9 +460,9 @@ export default class MatchLine {
 			item.classList.remove(this.itemActiveCls);
 			item.dataset.checked = '0';
 		});
-		this.anwsers = {};
+		this.answers = {};
 		this.backLines = [];
-		this.onChange && this.onChange({ ...this.anwsers });
+		this.onChange && this.onChange({ ...this.answers });
 	}
 
 	/**
@@ -477,8 +473,8 @@ export default class MatchLine {
 		if (line) {
 			const { key } = line;
 			const leftSel = `[data-value="${key}"]`;
-			const rightSel = `[data-value="${this.anwsers[key]}"]`;
-			delete this.anwsers[key];
+			const rightSel = `[data-value="${this.answers[key]}"]`;
+			delete this.answers[key];
 			const leftElement: QueryElementType =
 				this.container.querySelector(leftSel);
 			const rightElement: QueryElementType =
@@ -489,7 +485,7 @@ export default class MatchLine {
 				rightElement.classList.remove(this.itemActiveCls);
 				this.drawLines();
 			}
-			this.onChange && this.onChange({ ...this.anwsers });
+			this.onChange && this.onChange({ ...this.answers });
 		} else {
 			this.debug && console.log('[MatchLine]：当前无可撤销的记录');
 		}
@@ -498,24 +494,24 @@ export default class MatchLine {
 	 * 获取连线结果
 	 * @returns
 	 */
-	public getAnwsers() {
-		return { ...this.anwsers };
+	public getAnswers() {
+		return { ...this.answers };
 	}
 
 	/**
 	 * 纠错
 	 */
-	public checkAnwsers() {
+	public checkAnswers() {
 		// 获取答案keys
-		const keys = Object.keys(this.anwsers);
+		const keys = Object.keys(this.answers);
 		// 异常处理
-		if (!this.standardAnwsers || !this.backCtx || keys.length === 0) return;
+		if (!this.standardAnswers || !this.backCtx || keys.length === 0) return;
 		// 定义变量，记录连线信息
-		const lines: CheckAnwsersItemProps[] = [];
+		const lines: CheckAnswersItemProps[] = [];
 		// 遍历keys
 		keys.forEach((key) => {
-			if (this.anwsers.hasOwnProperty(key)) {
-				const value = this.anwsers[key];
+			if (this.answers.hasOwnProperty(key)) {
+				const value = this.answers[key];
 				/****************
 				 * 找到用户连线的数据
 				 ****************/
@@ -538,7 +534,7 @@ export default class MatchLine {
 					 * 处理纠错逻辑
 					 ****************/
 					// 获取答案
-					const anwser = this.standardAnwsers![key];
+					const anwser = this.standardAnswers![key];
 					// 拼装数据
 					lines.push({
 						isOk: value === anwser,
@@ -555,7 +551,9 @@ export default class MatchLine {
 		// 绘制模拟连线画板
 		this.backCtx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 		lines.forEach(({ isOk, point: { x1, y1, x2, y2 } }) => {
-			this.backCtx!.strokeStyle = isOk ? '#3CB371' : '#DC143C';
+			this.backCtx!.strokeStyle = isOk
+				? this.correctlineColor
+				: this.mislineColor;
 			this.backCtx!.beginPath();
 			this.backCtx!.moveTo(x1, y1);
 			this.backCtx!.lineTo(x2, y2);

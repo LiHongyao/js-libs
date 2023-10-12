@@ -5,7 +5,9 @@
 # 安装
 
 ```shell
+$ npm i @likg/match-line
 $ pnpm i @likg/match-line
+$ yarn add @likg/match-line
 ```
 
 ```tsx
@@ -13,7 +15,9 @@ import MatchLine from '@likg/match-line';
 const matchLine = new MatchLine(options: MatchLineConfigs);
 ```
 
-# MatchLineOptions
+## MatchLineOptions
+
+连线题选项数据结构：
 
 ```ts
 export type MatchLineOptions = Array<{
@@ -21,7 +25,7 @@ export type MatchLineOptions = Array<{
   rightOption: string;
 }>
 ```
-
+示例如下：
 ```js
 [
   { leftOption: '水果', rightOption: '🥕' },
@@ -31,12 +35,14 @@ export type MatchLineOptions = Array<{
 ]
 ```
 
-## MatchLineAnwsers
+## MatchLineAnswers
+
+答案数据结构：
 
 ```ts
 export type MatchLineAnwsers = Record<string, string>;
 ```
-
+示例如下：
 ```
 {
   水果: '🥕',
@@ -46,32 +52,32 @@ export type MatchLineAnwsers = Record<string, string>;
 }
 ```
 
-# MatchLineConfigs
+## MatchLineConfigs
 
-| 属性            | 数据类型                                  | 描述                                                         |
-| --------------- | ----------------------------------------- | ------------------------------------------------------------ |
-| container       | HTMLElement                               | 外层容器·包裹canvas和左右布局元素的容器<br />布局结构：div.container>div.leftItems+div.rightItem+canvas+backCanvas |
-| canvas          | HTMLCanvasElement                         | 实际连线标签Canvas                                           |
-| backCanvas      | HTMLCanvasElement                         | 模拟连线标签Canvas                                           |
-| items           | NodeListOf\<HTMLElement>                  | 连线元素标签                                                 |
-| itemActiveCls   | string                                    | 「可选」连线元素标签激活状态的类名，默认：active             |
-| strokeStyle     | string \| CanvasGradient \| CanvasPattern | 「可选」画笔颜色，默认：\#6495ED                             |
-| lineWidth       | number                                    | 「可选」画笔粗细，默认：1                                    |
-| anwsers         | MatchLineAnwsers                          | 「可选」用户连线答案·可选（在查看试卷详情以及纠错时必传      |
-| standardAnwsers | MatchLineAnwsers                          | 「可选」标准答案（在纠错时必传）                             |
-| checkAnwsers    | boolean                                   | 「可选」是否纠错<br/>为true时必传 anwsers 和 standardAnwsers 字段） |
-| disabled        | boolean                                   | 「可选」是否禁用（在查看试卷详情以及纠错时必传true）         |
-| debug           | boolean                                   | 「可选」是否启用调式模式                                     |
-| onChange        | (anwsers: MatchLineAnwsers) => void       | 每一次连线成功的回调·参数为连线结果集                        |
-
-
+| 属性             | 数据类型                                  | 描述                                                         |
+| ---------------- | ----------------------------------------- | ------------------------------------------------------------ |
+| container        | HTMLElement                               | 外层容器·包裹canvas和左右布局元素的容器<br />布局结构：div.container>div.options+canvas+backCanvas |
+| canvas           | HTMLCanvasElement                         | 实际连线标签Canvas                                           |
+| backCanvas       | HTMLCanvasElement                         | 模拟连线标签Canvas                                           |
+| items            | NodeListOf\<HTMLElement>                  | 连线元素标签                                                 |
+| itemActiveCls    | string                                    | 「可选」连线元素标签激活状态的类名，默认：active             |
+| strokeStyle      | string \| CanvasGradient \| CanvasPattern | 「可选」画笔颜色，默认：\#6495ED                             |
+| lineWidth        | number                                    | 「可选」画笔粗细，默认：1                                    |
+| answers          | MatchLineAnswers                          | 「可选」用户连线答案·可选（在查看试卷详情以及纠错时必传      |
+| standardAnswers  | MatchLineAnswers                          | 「可选」标准答案（在纠错时必传）                             |
+| checkAnswers     | boolean                                   | 「可选」是否纠错（为true时必传answers 和 standardAnswers 字段） |
+| correctlineColor | string                                    | 「可选」正确连线颜色，默认值：'#3CB371'                      |
+| mislineColor     | string                                    | 「可选」错误连线颜色，默认值：'#DC143C'                      |
+| disabled         | boolean                                   | 「可选」是否禁用（在查看试卷详情以及纠错时必传true）         |
+| debug            | boolean                                   | 「可选」是否启用调式模式                                     |
+| onChange         | (anwsers: MatchLineAnswers) => void       | 「可选」每一次连线成功的回调·参数为连线结果集                |
 
 # APIs
 
 - `matchLine.reset()`：重置
 - `matchLine.undo()`：撤销
-- `matchLine.getAnwsers()`：获取连线结果
-- `matchLine.checkAnwsers()`：纠错
+- `matchLine.getAnswers()`：获取连线结果
+- `matchLine.checkAnswers()`：纠错
 
 # 使用指南
 
@@ -108,7 +114,7 @@ export type MatchLineAnwsers = Record<string, string>;
 </div>
 ```
 
-> 提示：请严格按照上面的布局方式布局，连线元素必须设置 `data-value` 和 `data-ownership` 属性，便于处理连线逻辑。
+> 提示：请严格按照上面的布局方式布局，**连线元素必须设置 `data-value` 和 `data-ownership` 属性**，便于处理连线逻辑。
 
 ## 代码示例（react）
 

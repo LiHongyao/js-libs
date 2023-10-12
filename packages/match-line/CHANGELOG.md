@@ -1,5 +1,11 @@
 # @likg/match-line
 
+## 1.0.12
+
+### Patch Changes
+
+- 1. 修复变量名anwser→answer; 2. 新增mislineColor/correctlineColor属性;
+
 ## 1.0.11
 
 ### Patch Changes
