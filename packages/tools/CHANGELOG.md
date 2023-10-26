@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.4
+
+### Patch Changes
+
+- 兼容文件批量下载
+
 ## 1.0.3
 
 ### Patch Changes

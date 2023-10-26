@@ -162,10 +162,11 @@ static getDays(options?: {
 }): string[];
 /**
  * 批量下载文件
- * @param urls 文件地址
+ * @param urls 文件地址（在线）
+ * @param filename 文件名（可选）
  * @returns
  */
-static downloadFiles(urls: string[]): void;
+static downloadFiles(urls: string[], filename?: string): void;
 /**
  * 处理数字小于10时的格式/在小于10的数字前面拼接0
  * @param num
@@ -181,7 +182,7 @@ static numFormat(num: number): string;
  * - alipay：支付宝环境
  * - unknown：未知环境
  */
-static getEnv(): "unknown" | "weixin" | "alipay" | "android" | "ios";
+static getEnv(): "weixin" | "alipay" | "android" | "ios" | "unknown";
 /**
  * 获取文件存储路径
  * 一般用于规范对象存储时的文件管理规范
@@ -193,11 +194,11 @@ static getEnv(): "unknown" | "weixin" | "alipay" | "android" | "ios";
  */
 static getFilePath(file: File, dirName: string): string;
 /**
- * url转base64
- * @param url
+ * base64转码
+ * @param target 图片链接 / 文件对象
  * @returns
  */
-static base64(url: string): Promise<unknown>;
+static base64(target: string | File): Promise<unknown>;
 /**
  * 动态加载script标签
  * @param src {string | string[]} 加载脚本的地址，
@@ -207,26 +208,25 @@ static loadScript(src: string | string[], type?: string): void;
 /**
  * 深拷贝
  * @param source 源数据
- * @param target 目标对象
  * @returns
  */
-static deepCopy(source: Record<string, any>, target?: Record<string, any>): Record<string, any>;
+static deepClone<T = any>(source: T): T;
 /**
  * 更新对象，支持namePath形式
  * 如果你需要深拷贝更新，请试用Tools.deepUpdate
  * @param source  原始对象
- * @param keyPath eg: 'user' or 'user.name'
+ * @param namePath eg: 'user' or 'user.name'
  * @param value   更新值
  */
-static update(source: Record<string, any>, keyPath: string, value: any): Record<string, any>;
+static update<T = Record<string, any>>(source: T, namePath: string, value: any): T;
 /**
  * 深拷贝更新对象值
  * @param source  原始对象
- * @param keyPath eg: 'user' or 'user.name'
+ * @param namePath eg: 'user' or 'user.name'
  * @param value   更新值
  * @returns
  */
-static deepUpdate(source: Record<string, any>, keyPath: string, value: any): Record<string, any>;
+static deepUpdate<T = Record<string, any>>(source: T, namePath: string, value: any): T;
 /**
  * 获取上一天
  * @returns 返回日期对象

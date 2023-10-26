@@ -496,31 +496,51 @@ class Tools {
 		}
 		return days;
 	}
+
 	/**
 	 * 批量下载文件
-	 * @param urls 文件地址
+	 * @param urls 文件地址（在线）
+	 * @param filename 文件名（可选）
 	 * @returns
 	 */
-	public static downloadFiles(urls: string[]) {
+	public static downloadFiles(urls: string[], filename?: string) {
 		if (!urls || (urls && urls.length === 0)) return;
-		// create iframe element func.
-		const createIFrame = (
-			url: string,
-			triggerDelay: number,
-			removeDelay: number
-		) => {
+		const createDownloadElement = (url: string, delay: number) => {
 			setTimeout(() => {
-				const i = document.createElement('iframe');
-				i.style.display = 'none';
-				i.setAttribute('src', url);
-				document.body.appendChild(i);
-				setTimeout(() => {
-					i.remove();
-				}, removeDelay);
-			}, triggerDelay);
+				fetch(url)
+					.then((response) => {
+						if (response.ok) {
+							return response.blob();
+						} else {
+							throw new Error('downloadFiles：无法获取文件数据');
+						}
+					})
+					.then((blobData) => {
+						if (blobData) {
+							let __filename: string;
+							if (filename) {
+								__filename = filename;
+							} else {
+								const index = url.lastIndexOf('/');
+								if (index !== -1) {
+									__filename = url.slice(index + 1);
+								} else {
+									__filename = String(Date.now());
+								}
+							}
+							const a = document.createElement('a');
+							a.style.display = 'none';
+							a.href = URL.createObjectURL(blobData);
+							a.download = __filename;
+							document.body.appendChild(a);
+							a.click();
+							document.body.removeChild(a);
+						}
+					});
+			}, delay);
 		};
 		urls.forEach((url, index) => {
-			createIFrame(url, index * 100, 1000);
+			createDownloadElement(url, index * 100);
 		});
 	}
 	/**
