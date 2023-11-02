@@ -19,7 +19,7 @@ import Tools from 'lg-tools';
 # API
 
 ```js
-/**
+ /**
  * 获取queryString参数值
  * @param key
  * @param queryString
@@ -267,13 +267,13 @@ static canvasFillText(context: CanvasRenderingContext2D, text: string, x: number
  * 文本溢出省略处理
  * @param str  源字符串
  * @param len  长度 / 规则，指定前后保留的位数，默认为6
- * @param type 省略类型: 'head' | 'centre' | 'tail'
+ * @param type 省略类型: 'head' | 'center' | 'tail'
  * @returns
  */
-static ellipsis(str: string, len?: number, type?: 'head' | 'centre' | 'tail'): string;
+static ellipsis(str: string, len?: number, type?: 'head' | 'middle' | 'tail'): string;
 /**
  * 解析日期字符串
- * 一般用于根据年月筛选时，将日期字符串返回起始传递给后端（严格上来将后端处理即可）
+ * 一般用于根据年月筛选时，将日期字符串返回起始传递给后端（严格上来讲后端处理即可）
  * 如：2022-02，返回 {start: '202-02-01 00:00:00', end: '202-02-28 23:59:59'}
  * @param dateString 日期字符串，格式：YYYY-MM
  * @returns
@@ -285,4 +285,10 @@ static analysisDateString(dateString: string): {
     start: string;
     end: string;
 };
+/**
+ * 校验文件尺寸/扩展名
+ * @param options
+ * @returns
+ */
+static checkFile(options: ICheckFileSize | ICheckFileExtension): boolean;
 ```

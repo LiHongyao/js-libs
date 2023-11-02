@@ -21,6 +21,17 @@ interface ITrackEs {
 	opt_value?: string /** 事件的一些数值信息，比如权重、时长、价格等等，在报表中可以看到其平均值等数据。该项可选。 */;
 }
 
+interface ICheckFileSize {
+	type: 'size';
+	maxSize: number;
+	file: File;
+}
+interface ICheckFileExtension {
+	type: 'extension';
+	accept: string;
+	file: File;
+}
+
 class Tools {
 	// 构造单例
 	private static instance: Tools;
@@ -941,13 +952,13 @@ class Tools {
 	 * 文本溢出省略处理
 	 * @param str  源字符串
 	 * @param len  长度 / 规则，指定前后保留的位数，默认为6
-	 * @param type 省略类型: 'head' | 'centre' | 'tail'
+	 * @param type 省略类型: 'head' | 'center' | 'tail'
 	 * @returns
 	 */
 	public static ellipsis(
 		str: string,
 		len = 6,
-		type: 'head' | 'centre' | 'tail' = 'centre'
+		type: 'head' | 'middle' | 'tail' = 'middle'
 	) {
 		// 异常处理
 		if (typeof str !== 'string' || !str || (str && str.length <= len)) {
@@ -963,7 +974,7 @@ class Tools {
 		switch (type) {
 			case 'head':
 				return `··· ${s2}`;
-			case 'centre':
+			case 'middle':
 				return `${s1} ··· ${s2}`;
 			case 'tail':
 				return `${s1} ···`;
@@ -974,7 +985,7 @@ class Tools {
 
 	/**
 	 * 解析日期字符串
-	 * 一般用于根据年月筛选时，将日期字符串返回起始传递给后端（严格上来将后端处理即可）
+	 * 一般用于根据年月筛选时，将日期字符串返回起始传递给后端（严格上来讲后端处理即可）
 	 * 如：2022-02，返回 {start: '202-02-01 00:00:00', end: '202-02-28 23:59:59'}
 	 * @param dateString 日期字符串，格式：YYYY-MM
 	 * @returns
@@ -1015,6 +1026,34 @@ class Tools {
 			start: `${dateString}-01 00:00:00`,
 			end: `${dateString}-${days < 10 ? '0' + days : days} 23:59:59`
 		};
+	}
+	/**
+	 * 校验文件尺寸/扩展名
+	 * @param options
+	 * @returns
+	 */
+	public static checkFile(options: ICheckFileSize | ICheckFileExtension) {
+		const { type, file } = options;
+		// 校验文件大小
+		if (type === 'size') {
+			const { maxSize } = options;
+			if (file.size > maxSize * 1024 * 1024) {
+				return false;
+			}
+			return true;
+		}
+		// 校验文件后缀
+		if (type === 'extension') {
+			const { accept } = options;
+			const index = file.name.lastIndexOf('.');
+			if (index === -1) {
+				return false;
+			}
+			const extension = file.name.slice(index);
+			const accepts = accept.split(',').map((v) => v.trim());
+			return accepts.includes(extension);
+		}
+		return false;
 	}
 }
 export default Tools;

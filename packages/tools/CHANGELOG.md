@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.5
+
+### Patch Changes
+
+- 新增checkFile方法
+
 ## 1.0.4
 
 ### Patch Changes
