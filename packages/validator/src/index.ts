@@ -151,6 +151,7 @@ class Validator {
 	 */
 	public static checkFile(options: ICheckFileSize | ICheckFileExtension) {
 		const { type, file } = options;
+
 		// 校验文件大小
 		if (type === 'size') {
 			const { maxSize } = options;
@@ -159,16 +160,26 @@ class Validator {
 			}
 			return true;
 		}
+
 		// 校验文件后缀
 		if (type === 'extension') {
-			const { accept } = options;
+			let { accept } = options;
 			const index = file.name.lastIndexOf('.');
 			if (index === -1) {
 				return false;
 			}
 			const extension = file.name.slice(index);
-			const accepts = accept.split(',').map((v) => v.trim());
-			return accepts.includes(extension);
+			if (/image\/\*/i.test(accept)) {
+				accept = '.jpg, .jpeg, .png, .gif, .bmp, .webp, .svg';
+			} else if (/video\/\*/i.test(accept)) {
+				accept = '.mp4, .avi, .mkv, .mov, .wmv, .flv, .rmvb, .mpeg, .mpg';
+			} else if (/audio\/\*/i.test(accept)) {
+				accept = '.mp3, .wav, .wma, .rm, .mid, .aac, .ogg';
+			}
+			return accept
+				.split(',')
+				.map((v) => v.trim())
+				.includes(extension);
 		}
 		return false;
 	}

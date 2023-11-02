@@ -1,5 +1,11 @@
 # @likg/validator
 
+## 1.0.5
+
+### Patch Changes
+
+- 新增image/_, audio/_, video/\* 类型校验
+
 ## 1.0.4
 
 ### Patch Changes
