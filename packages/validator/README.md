@@ -101,4 +101,10 @@ static isToday(v: Date | string | number): boolean;
  * @returns
  */
 isJSON(target: any): boolean;
+/**
+ * 校验文件尺寸/扩展名
+ * @param options
+ * @returns
+ */
+static checkFile(options: ICheckFileSize | ICheckFileExtension): boolean;
 ```

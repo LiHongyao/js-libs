@@ -21,16 +21,7 @@ interface ITrackEs {
 	opt_value?: string /** 事件的一些数值信息，比如权重、时长、价格等等，在报表中可以看到其平均值等数据。该项可选。 */;
 }
 
-interface ICheckFileSize {
-	type: 'size';
-	maxSize: number;
-	file: File;
-}
-interface ICheckFileExtension {
-	type: 'extension';
-	accept: string;
-	file: File;
-}
+
 
 class Tools {
 	// 构造单例
@@ -1026,34 +1017,6 @@ class Tools {
 			start: `${dateString}-01 00:00:00`,
 			end: `${dateString}-${days < 10 ? '0' + days : days} 23:59:59`
 		};
-	}
-	/**
-	 * 校验文件尺寸/扩展名
-	 * @param options
-	 * @returns
-	 */
-	public static checkFile(options: ICheckFileSize | ICheckFileExtension) {
-		const { type, file } = options;
-		// 校验文件大小
-		if (type === 'size') {
-			const { maxSize } = options;
-			if (file.size > maxSize * 1024 * 1024) {
-				return false;
-			}
-			return true;
-		}
-		// 校验文件后缀
-		if (type === 'extension') {
-			const { accept } = options;
-			const index = file.name.lastIndexOf('.');
-			if (index === -1) {
-				return false;
-			}
-			const extension = file.name.slice(index);
-			const accepts = accept.split(',').map((v) => v.trim());
-			return accepts.includes(extension);
-		}
-		return false;
 	}
 }
 export default Tools;

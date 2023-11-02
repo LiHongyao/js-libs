@@ -5,6 +5,18 @@
  * @LastEditTime: 2023-08-17 13:30:35
  * @Description:
  */
+
+interface ICheckFileSize {
+	type: 'size';
+	maxSize: number;
+	file: File;
+}
+interface ICheckFileExtension {
+	type: 'extension';
+	accept: string;
+	file: File;
+}
+
 class Validator {
 	/**
 	 * 中文名校验
@@ -130,6 +142,35 @@ class Validator {
 		} catch (e) {
 			return false;
 		}
+	}
+
+	/**
+	 * 校验文件尺寸/扩展名
+	 * @param options
+	 * @returns
+	 */
+	public static checkFile(options: ICheckFileSize | ICheckFileExtension) {
+		const { type, file } = options;
+		// 校验文件大小
+		if (type === 'size') {
+			const { maxSize } = options;
+			if (file.size > maxSize * 1024 * 1024) {
+				return false;
+			}
+			return true;
+		}
+		// 校验文件后缀
+		if (type === 'extension') {
+			const { accept } = options;
+			const index = file.name.lastIndexOf('.');
+			if (index === -1) {
+				return false;
+			}
+			const extension = file.name.slice(index);
+			const accepts = accept.split(',').map((v) => v.trim());
+			return accepts.includes(extension);
+		}
+		return false;
 	}
 }
 

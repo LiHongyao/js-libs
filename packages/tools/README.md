@@ -285,10 +285,5 @@ static analysisDateString(dateString: string): {
     start: string;
     end: string;
 };
-/**
- * 校验文件尺寸/扩展名
- * @param options
- * @returns
- */
-static checkFile(options: ICheckFileSize | ICheckFileExtension): boolean;
+
 ```

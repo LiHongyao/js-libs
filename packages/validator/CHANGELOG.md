@@ -1,5 +1,11 @@
 # @likg/validator
 
+## 1.0.4
+
+### Patch Changes
+
+- 新增checkFile
+
 ## 1.0.3
 
 ### Patch Changes
