@@ -498,49 +498,62 @@ class Tools {
 	}
 
 	/**
-	 * 批量下载文件
-	 * @param urls 文件地址（在线）
-	 * @param filename 文件名（可选）
+	 * 批量下载（导出）文件
+	 * @param urls 文件地址，在线链接
+	 * @param options 配置项
+	 * @param options.filename 文件名
+	 * @param options.mode 下载类型：link（链接） | blob（文件流） ，默认值 link
 	 * @returns
 	 */
-	public static downloadFiles(urls: string[], filename?: string) {
+	public static downloadFiles(
+		urls: string[],
+		options?: { filename?: string; mode: 'link' | 'blob' }
+	) {
 		if (!urls || (urls && urls.length === 0)) return;
-		const createDownloadElement = (url: string, delay: number) => {
+		const { filename, mode = 'blob' } = options || {};
+		const download = (href: string, filename: string) => {
+			const a = document.createElement('a');
+			a.style.display = 'none';
+			a.href = href;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+		};
+		const convertToBlob = (url: string, delay: number, filename: string) => {
 			setTimeout(() => {
 				fetch(url)
 					.then((response) => {
 						if (response.ok) {
 							return response.blob();
 						} else {
-							throw new Error('downloadFiles：无法获取文件数据');
+							throw new Error('downloadFiles：无法读取文件数据');
 						}
 					})
 					.then((blobData) => {
 						if (blobData) {
-							let __filename: string;
-							if (filename) {
-								__filename = filename;
-							} else {
-								const index = url.lastIndexOf('/');
-								if (index !== -1) {
-									__filename = url.slice(index + 1);
-								} else {
-									__filename = String(Date.now());
-								}
-							}
-							const a = document.createElement('a');
-							a.style.display = 'none';
-							a.href = URL.createObjectURL(blobData);
-							a.download = __filename;
-							document.body.appendChild(a);
-							a.click();
-							document.body.removeChild(a);
+							download(URL.createObjectURL(blobData), filename);
 						}
 					});
 			}, delay);
 		};
 		urls.forEach((url, index) => {
-			createDownloadElement(url, index * 100);
+			let __filename: string;
+			if (filename) {
+				__filename = filename;
+			} else {
+				const index = url.lastIndexOf('/');
+				if (index !== -1) {
+					__filename = url.slice(index + 1);
+				} else {
+					__filename = String(Date.now());
+				}
+			}
+			if (mode === 'blob') {
+				convertToBlob(url, index * 100, __filename);
+			} else {
+				download(url, __filename);
+			}
 		});
 	}
 	/**

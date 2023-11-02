@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.7
+
+### Patch Changes
+
+- 重写文件批量下载,支持链接和文件流方式
+
 ## 1.0.6
 
 ### Patch Changes

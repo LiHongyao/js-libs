@@ -161,12 +161,17 @@ static getDays(options?: {
     month: number;
 }): string[];
 /**
- * 批量下载文件
- * @param urls 文件地址（在线）
- * @param filename 文件名（可选）
+ * 批量下载（导出）文件
+ * @param urls 文件地址，在线链接
+ * @param options 配置项
+ * @param options.filename 文件名
+ * @param options.mode 下载类型：link（链接） | blob（文件流） ，默认值 link
  * @returns
  */
-static downloadFiles(urls: string[], filename?: string): void;
+static downloadFiles(urls: string[], options?: {
+    filename?: string;
+    mode: 'link' | 'blob';
+}): void;
 /**
  * 处理数字小于10时的格式/在小于10的数字前面拼接0
  * @param num
