@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.6
+
+### Patch Changes
+
+- 移除checkFile函数
+
 ## 1.0.5
 
 ### Patch Changes
