@@ -502,7 +502,7 @@ class Tools {
 	 * @param urls 文件地址，在线链接
 	 * @param options 配置项
 	 * @param options.filename 文件名
-	 * @param options.mode 下载类型：link（链接） | blob（文件流） ，默认值 link
+	 * @param options.mode 下载类型：link（链接） | blob（文件流） ，默认值 blob
 	 * @returns
 	 */
 	public static downloadFiles(
@@ -704,7 +704,11 @@ class Tools {
 			for (const key in source) {
 				if (Object.prototype.hasOwnProperty.call(source, key)) {
 					// 判断 source 子元素是否为对象
-					if (source[key] && typeof source[key] === 'object') {
+					if (
+						source[key] &&
+						typeof source[key] === 'object' &&
+						!(source[key] instanceof HTMLElement)
+					) {
 						// 如果是，递归复制
 						cloneObj[key] = Tools.deepClone(source[key]);
 					} else {

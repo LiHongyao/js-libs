@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.8
+
+### Patch Changes
+
+- 修复deepClone 在拷贝HTMLElement节点时地循环的问题
+
 ## 1.0.7
 
 ### Patch Changes
