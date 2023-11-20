@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.9
+
+### Patch Changes
+
+- 修复timeDown 未正常停止定时器的问题
+
 ## 1.0.8
 
 ### Patch Changes

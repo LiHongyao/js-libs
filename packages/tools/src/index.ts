@@ -235,12 +235,12 @@ class Tools {
 		pending: (time: string | string[]) => void;
 		complete: () => void;
 	}) {
-		// 处理时间格式
-		function formatNumber(n: number | string) {
+		// -- 处理时间格式
+		const f = (n: number | string) => {
 			n = n.toString();
 			return n[1] ? n : '0' + n;
-		}
-		// 解构参数
+		};
+		// -- 解构参数
 		const {
 			timeStamp,
 			format,
@@ -256,15 +256,13 @@ class Tools {
 		} else {
 			const tick = () => {
 				counter -= interval;
-				const day = showDay
-					? formatNumber(Math.floor(counter / 1000 / 60 / 60 / 24))
-					: '';
+				const day = showDay ? f(Math.floor(counter / 1000 / 60 / 60 / 24)) : '';
 				const hours = showDay
-					? formatNumber(Math.floor((counter / 1000 / 60 / 60) % 24))
-					: formatNumber(Math.floor(counter / 1000 / 60 / 60));
-				const minutes = formatNumber(Math.floor((counter / 1000 / 60) % 60));
-				const seconds = formatNumber(Math.floor((counter / 1000) % 60));
-				const millisecond = formatNumber(Math.floor((counter % 1000) / 100));
+					? f(Math.floor((counter / 1000 / 60 / 60) % 24))
+					: f(Math.floor(counter / 1000 / 60 / 60));
+				const minutes = f(Math.floor((counter / 1000 / 60) % 60));
+				const seconds = f(Math.floor((counter / 1000) % 60));
+				const millisecond = f(Math.floor((counter % 1000) / 100));
 				let res: string | string[];
 				// 判断是否格式返回
 				if (format) {
@@ -280,16 +278,16 @@ class Tools {
 							? [day, hours, minutes, seconds]
 							: [day, hours, minutes, seconds, millisecond];
 				}
-				if (timeStamp <= 0) {
-					clearInterval(timer);
+				if (counter <= 0) {
+					clearInterval(t);
 					complete();
 				} else {
 					pending(res);
 				}
 			};
 			tick();
-			const timer = setInterval(tick, interval);
-			return timer;
+			const t = setInterval(tick, interval);
+			return t;
 		}
 	}
 
