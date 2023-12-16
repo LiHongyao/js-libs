@@ -1,0 +1,54 @@
+.Lg-magnifier {
+  width: 100%;
+  height: 100%;
+  user-select: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  
+}
+
+.Lg-magnifier__canvas {
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+  opacity: 0;
+  z-index: -1;
+}
+.Lg-magnifier__cropBox {
+  width: 100px;
+  height: 100px;
+  pointer-events: none;
+  border: 1px dashed red;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 100000;
+}
+.Lg-magnifier__magnifier {
+  border: 2px dashed blue;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: crosshair;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 99999;
+}
+
+.Lg-magnifier__dragBox {
+  border: 1px dashed green;
+  cursor: move;
+  z-index: 1;
+}
+.Lg-magnifier__scaleImg {
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  position: absolute;
+  top: 0;
+  left: 0;
+}

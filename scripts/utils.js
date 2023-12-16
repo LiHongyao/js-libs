@@ -14,12 +14,13 @@ import resolve from '@rollup/plugin-node-resolve';
 import del from 'rollup-plugin-delete';
 import eslint from '@rollup/plugin-eslint';
 import terser from '@rollup/plugin-terser';
+import postcss from 'rollup-plugin-postcss';
 import { babel } from '@rollup/plugin-babel';
 
 const isProduction = process.env.NODE_ENV === 'production';
 const pkgPath = path.resolve(__dirname, '../packages');
 
-const commonPlugins = (pkgName) => ([
+const commonPlugins = (pkgName) => [
 	del({ targets: `${pkgPath}/${pkgName}/dist/**/*` }),
 	resolve(),
 	commonjs(),
@@ -37,8 +38,11 @@ const commonPlugins = (pkgName) => ([
 		extensions: ['.js', '.ts'],
 		exclude: 'node_modules/**',
 		babelHelpers: 'bundled'
+	}),
+	postcss({
+		plugins: []
 	})
-]);
+];
 const devPlugins = [];
 const proPlugins = [
 	terser({
@@ -124,6 +128,9 @@ export function generateRollupConfig(pkgName) {
 			distPath,
 			buildOptions.moduleName
 		),
-		plugins: [...commonPlugins(pkgName), ...(isProduction ? proPlugins : devPlugins)]
+		plugins: [
+			...commonPlugins(pkgName),
+			...(isProduction ? proPlugins : devPlugins)
+		]
 	};
 }
