@@ -18,5 +18,27 @@ magnifier.mount();
 magnifier.destory();
 ```
 
-
 # MagnifierOptions
+
+```ts
+interface MagnifierOptions {
+  /** 放大镜初始尺寸，默认值200x200 */
+  initialSize?: Size;
+  /** 放大镜最小尺寸，默认值500x500 */
+  minSize?: Size;
+  /** 放大镜最大尺寸，默认值100x100 */
+  maxSize?: Size;
+  /** 四周触发拖拽缩放的间距，默认值 20 */
+  resizeSpacing?: number;
+  /** 缩放比例，默认值 1 */
+  scaleRatio?: number;
+  /** 边框颜色，默认值 #7B68EE */
+  borderColor?: string;
+  /** 调试模式 */
+  debug?: boolean;
+}
+```
+
+# 尾言
+
+`@likg/magnifier` 主要依赖 [html2canvas](https://html2canvas.hertzen.com/) 实现，当你发现放大镜内容不完整时，可以参考 html2canvas 对于 css 样式的兼容。

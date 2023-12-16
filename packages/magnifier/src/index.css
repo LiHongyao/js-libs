@@ -5,7 +5,7 @@
   position: fixed;
   top: 0;
   left: 0;
-  
+  z-index: 10000;
 }
 
 .Lg-magnifier__canvas {
@@ -20,15 +20,15 @@
 .Lg-magnifier__cropBox {
   width: 100px;
   height: 100px;
+  box-sizing: border-box;
   pointer-events: none;
-  border: 1px dashed red;
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 100000;
 }
 .Lg-magnifier__magnifier {
-  border: 2px dashed blue;
+  box-sizing: border-box;
+  border: 2px dashed #7B68EE;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -36,11 +36,10 @@
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 99999;
 }
 
 .Lg-magnifier__dragBox {
-  border: 1px dashed green;
+  box-sizing: border-box;
   cursor: move;
   z-index: 1;
 }
