@@ -1,48 +1,66 @@
+/* 外层容器·遮罩层 */
 .Lg-magnifier {
   width: 100%;
   height: 100%;
-  user-select: none;
+
   position: fixed;
   top: 0;
   left: 0;
+
   z-index: 10000;
 }
 
-.Lg-magnifier__canvas {
+/* 屏幕截图 */
+.Lg-magnifier__screenshots {
   width: 100%;
   height: 100%;
+
   position: absolute;
   top: 0;
   left: 0;
+
+  /* 作为放大镜源数据，无需呈现给用户 */
   opacity: 0;
   z-index: -1;
 }
+
+/* 裁剪区域 */
 .Lg-magnifier__cropBox {
   width: 100px;
   height: 100px;
   box-sizing: border-box;
+  /** 由于裁剪区域在拖拽区域之上，为了不影响拖拽事件，需设置此属性用于事件穿透 */
   pointer-events: none;
-  position: absolute;
-  top: 0;
-  left: 0;
-}
-.Lg-magnifier__magnifier {
-  box-sizing: border-box;
-  border: 2px dashed #7B68EE;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: crosshair;
+
   position: absolute;
   top: 0;
   left: 0;
 }
 
+
+/* 放大镜 & 缩放区域 */
+.Lg-magnifier__magnifier {
+  box-sizing: border-box;
+  border: 2px dashed #7b68ee;
+  /* 拖拽区域在此元素内部，这里是让拖拽元素在内部居中 */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  cursor: crosshair;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+/* 拖拽元素 */
 .Lg-magnifier__dragBox {
   box-sizing: border-box;
   cursor: move;
-  z-index: 1;
 }
+
+/* 放大镜呈现内容 */
 .Lg-magnifier__scaleImg {
   pointer-events: none;
   width: 100%;
@@ -50,4 +68,5 @@
   position: absolute;
   top: 0;
   left: 0;
+  z-index: -1;
 }
