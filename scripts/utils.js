@@ -1,11 +1,3 @@
-/*
- * @Author: Lee
- * @Date: 2023-08-16 18:35:28
- * @LastEditors: Lee
- * @LastEditTime: 2023-08-18 10:16:57
- * @Description:
- */
-
 import path from 'path';
 import fs from 'fs';
 import typescript from '@rollup/plugin-typescript';

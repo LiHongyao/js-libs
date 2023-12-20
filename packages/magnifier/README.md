@@ -24,20 +24,20 @@ magnifier.destory();
 
 ```ts
 interface MagnifierOptions {
-	/** 放大镜初始尺寸，默认值200x200 */
-	initialSize?: Size;
-	/** 放大镜最小尺寸，默认值100x100 */
-	minSize?: Size;
-	/** 放大镜最大尺寸，默认值500x500 */
-	maxSize?: Size;
-	/** 四周触发拖拽缩放的间距，默认值 20 */
-	resizeSpacing?: number;
-	/** 缩放比例，默认值 1 */
-	scaleRatio?: number;
-	/** 边框颜色，默认值 #7B68EE */
-	borderColor?: string;
-	/** 调试模式 */
-	debug?: boolean;
+  /** 放大镜初始尺寸，默认值200x200 */
+  initialSize?: Size;
+  /** 放大镜最小尺寸，默认值500x500 */
+  minSize?: Size;
+  /** 放大镜最大尺寸，默认值100x100 */
+  maxSize?: Size;
+  /** 四周触发拖拽缩放的间距，默认值 20 */
+  resizeSpacing?: number;
+  /** 缩放比例，默认值 1 */
+  scaleRatio?: number;
+  /** 边框颜色，默认值 #7B68EE */
+  borderColor?: string;
+  /** 调试模式 */
+  debug?: boolean;
 }
 ```
 

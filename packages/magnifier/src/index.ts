@@ -6,9 +6,9 @@ type Size = { width: number; height: number };
 export interface MagnifierOptions {
 	/** 放大镜初始尺寸，默认值200x200 */
 	initialSize?: Size;
-	/** 放大镜最小尺寸，默认值100x100 */
+	/** 放大镜最小尺寸，默认值500x500 */
 	minSize?: Size;
-	/** 放大镜最大尺寸，默认值500x500 */
+	/** 放大镜最大尺寸，默认值100x100 */
 	maxSize?: Size;
 	/** 四周触发拖拽缩放的间距，默认值 20 */
 	resizeSpacing?: number;
@@ -23,9 +23,9 @@ export interface MagnifierOptions {
 export default class Magnifier {
 	/** 放大镜初始尺寸，默认值200x200 */
 	private initialSize: Size;
-	/** 放大镜最小尺寸，默认值100x100 */
+	/** 放大镜最小尺寸，默认值500x500 */
 	private minSize: Size;
-	/** 放大镜最大尺寸，默认值500x500 */
+	/** 放大镜最大尺寸，默认值100x100 */
 	private maxSize: Size;
 	/** 四周触发拖拽缩放的间距，默认值 20 */
 	private resizeSpacing: number;
@@ -73,7 +73,7 @@ export default class Magnifier {
 		const {
 			initialSize = { width: 200, height: 200 },
 			minSize = { width: 100, height: 100 },
-			maxSize = { width: 500, height: 500 },
+			maxSize = { width: 1000, height: 600 },
 			resizeSpacing = 20,
 			scaleRatio = 1.5,
 			borderColor = '#7B68EE',
@@ -151,7 +151,7 @@ export default class Magnifier {
 		a.setAttribute('target', '_blank');
 		a.setAttribute('href', objUrl);
 		a.setAttribute('download', 'IMG__' + Date.now());
-		let clickEvent = document.createEvent('MouseEvents');
+		const clickEvent = document.createEvent('MouseEvents');
 		clickEvent.initEvent('click', true, true);
 		a.dispatchEvent(clickEvent);
 	};
@@ -180,7 +180,6 @@ export default class Magnifier {
 		this.cropBox.style.left = x + 'px';
 		this.cropBox.style.top = y + 'px';
 	};
-
 	/**
 	 * 获取屏幕截图
 	 * @returns
@@ -198,6 +197,7 @@ export default class Magnifier {
 			scale: this.scaleRatio,
 			// 是否尝试使用 CORS 从服务器加载图像
 			useCORS: true,
+			proxy: 'https://xingzhe-web-test.s3.cn-northwest-1.amazonaws.com.cn',
 			// 裁剪画布 x 坐标
 			x: document.documentElement.scrollLeft,
 			// 裁剪画布 y 坐标
@@ -476,8 +476,8 @@ export default class Magnifier {
 		}
 		// -- 如果是从顶部/左侧缩放，则需动态更新放大镜在屏幕的位置
 		if (this.isResizeTopLeft) {
-			let x = event.clientX - this.originalOffset.x;
-			let y = event.clientY - this.originalOffset.y;
+			const x = event.clientX - this.originalOffset.x;
+			const y = event.clientY - this.originalOffset.y;
 			this.magnifier.style.left = x + 'px';
 			this.magnifier.style.top = y + 'px';
 		}

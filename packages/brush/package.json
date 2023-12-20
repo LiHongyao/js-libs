@@ -1,7 +1,7 @@
 {
-	"name": "@likg/magnifier",
-	"version": "1.0.4",
-	"description": "网页放大镜",
+	"name": "@likg/brush",
+	"version": "1.0.1",
+	"description": "画笔工具",
 	"type": "module",
 	"types": "./dist/index.d.ts",
 	"main": "./dist/index.cjs.js",
@@ -25,9 +25,8 @@
 		"README.md"
 	],
 	"keywords": [
-		"网页放大镜",
-		"拖拽",
-		"位移缩放",
+		"画笔工具",
+		"画板",
 		"canvas"
 	],
 	"author": "",
@@ -39,8 +38,5 @@
 	"bugs": {
 		"url": "https://github.com/lihongyao/lg-libs/issues"
 	},
-	"homepage": "https://github.com/lihongyao/lg-libs.git#readme",
-	"dependencies": {
-		"html2canvas": "^1.4.1"
-	}
+	"homepage": "https://github.com/lihongyao/lg-libs.git#readme"
 }

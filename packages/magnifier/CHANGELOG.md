@@ -1,5 +1,11 @@
 # @likg/magnifier
 
+## 1.0.4
+
+### Patch Changes
+
+- 优化文档和注解
+
 ## 1.0.3
 
 ### Patch Changes
