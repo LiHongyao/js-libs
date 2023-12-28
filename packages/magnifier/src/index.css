@@ -1,3 +1,12 @@
+@keyframes magnifier-loading-circle {
+  from {
+    transform: rotateZ(0);
+  }
+  to {
+    transform: rotateZ(360deg);
+  }
+}
+
 /* 外层容器·遮罩层 */
 .Lg-magnifier {
   width: 100%;
@@ -37,7 +46,6 @@
   left: 0;
 }
 
-
 /* 放大镜 & 缩放区域 */
 .Lg-magnifier__magnifier {
   box-sizing: border-box;
@@ -69,4 +77,35 @@
   top: 0;
   left: 0;
   z-index: -1;
+}
+
+/** 加载元素 */
+.Lg-magnifier__loading {
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+
+  position: absolute;
+  top: 0;
+  left: 0;
+}
+
+.Lg-magnifier__loading-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: inline-block;
+  border-top: 3px solid #f5f5f5;
+  border-right: 3px solid transparent;
+  animation: magnifier-loading-circle 1s linear infinite;
+  margin-bottom: 16px;
+}
+.Lg-magnifier__loading-text {
+  color: #f5f5f5;
+  font-family: Source Han Serif CN;
+  font-size: 14px;
 }

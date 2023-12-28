@@ -1,5 +1,11 @@
 # @likg/magnifier
 
+## 1.0.5
+
+### Patch Changes
+
+- 新增加载效果
+
 ## 1.0.4
 
 ### Patch Changes
