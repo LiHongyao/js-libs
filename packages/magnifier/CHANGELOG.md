@@ -1,5 +1,11 @@
 # @likg/magnifier
 
+## 1.0.6
+
+### Patch Changes
+
+- 移除html2canvas依赖,下载其源码,修改img.src处理跨域问题
+
 ## 1.0.5
 
 ### Patch Changes
