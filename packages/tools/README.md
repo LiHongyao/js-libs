@@ -163,9 +163,8 @@ static getDays(options?: {
 /**
  * 批量下载（导出）文件
  * @param urls 文件地址，在线链接
- * @param options 配置项
- * @param options.filename 文件名
- * @param options.mode 下载类型：link（链接） | blob（文件流） ，默认值 link
+ * @param filename 文件名
+ * @param mode 下载类型：link（链接） | blob（文件流） ，默认值 blob
  * @returns
  */
 static downloadFiles(urls: string[], options?: {

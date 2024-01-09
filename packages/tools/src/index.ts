@@ -498,17 +498,18 @@ class Tools {
 	/**
 	 * 批量下载（导出）文件
 	 * @param urls 文件地址，在线链接
-	 * @param options 配置项
-	 * @param options.filename 文件名
-	 * @param options.mode 下载类型：link（链接） | blob（文件流） ，默认值 blob
+	 * @param filename 文件名
+	 * @param mode 下载类型：link（链接） | blob（文件流） ，默认值 blob
 	 * @returns
 	 */
 	public static downloadFiles(
 		urls: string[],
-		options?: { filename?: string; mode: 'link' | 'blob' }
+		filename?: string | null,
+		mode: 'link' | 'blob' = 'blob'
 	) {
+		// -- 异常处理
 		if (!urls || (urls && urls.length === 0)) return;
-		const { filename, mode = 'blob' } = options || {};
+		// -- 下载方法
 		const download = (href: string, filename: string) => {
 			const a = document.createElement('a');
 			a.style.display = 'none';
@@ -518,6 +519,7 @@ class Tools {
 			a.click();
 			document.body.removeChild(a);
 		};
+		// -- 转换成 base64
 		const convertToBlob = (url: string, delay: number, filename: string) => {
 			setTimeout(() => {
 				fetch(url)
@@ -535,22 +537,23 @@ class Tools {
 					});
 			}, delay);
 		};
+		// -- 批量下载
 		urls.forEach((url, index) => {
 			let __filename: string;
 			if (filename) {
 				__filename = filename;
+				if (urls.length > 1) __filename += index + 1;
 			} else {
-				const index = url.lastIndexOf('/');
-				if (index !== -1) {
-					__filename = url.slice(index + 1);
-				} else {
-					__filename = String(Date.now());
-				}
+				const start = url.lastIndexOf('/') + 1;
+				const end = url.lastIndexOf('.');
+				__filename = url.slice(start, end);
 			}
+
+			const extension = url.slice(url.lastIndexOf('.'));
 			if (mode === 'blob') {
-				convertToBlob(url, index * 100, __filename);
+				convertToBlob(url, index * 200, __filename + extension);
 			} else {
-				download(url, __filename);
+				download(url, __filename + extension);
 			}
 		});
 	}
