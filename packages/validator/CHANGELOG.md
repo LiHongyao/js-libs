@@ -1,5 +1,11 @@
 # @likg/validator
 
+## 1.0.7
+
+### Patch Changes
+
+- 更新文档
+
 ## 1.0.6
 
 ### Patch Changes
