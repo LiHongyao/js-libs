@@ -1,5 +1,11 @@
 # @likg/validator
 
+## 1.0.6
+
+### Patch Changes
+
+- 新增校验音视频方法
+
 ## 1.0.5
 
 ### Patch Changes

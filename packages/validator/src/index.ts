@@ -22,14 +22,14 @@ class Validator {
 	 * 中文名校验
 	 * @param v
 	 */
-	public static username(v: string) {
+	public static isUsername(v: string) {
 		return /^[\u4e00-\u9fa5]{2,6}$/.test(v);
 	}
 	/**
 	 * 身份证校验
 	 * @param v
 	 */
-	public static idCard(v: string) {
+	public static isIdCard(v: string) {
 		return /(^[1-9]\d{5}(18|19|([23]\d))\d{2}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}[0-9Xx]$)|(^[1-9]\d{7}((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)\d{3}$)/.test(
 			v
 		);
@@ -41,59 +41,59 @@ class Validator {
 	 * 3. 不支持设置中文；
 	 * @param v
 	 */
-	public static weChatId(v: string) {
+	public static isWeChatId(v: string) {
 		return /^[a-zA-Z][a-zA-Z\d_-]{5,19}$/.test(v);
 	}
 	/**
 	 * 验证QQ号
 	 * @param v
 	 */
-	public static qq(v: string) {
+	public static isQQ(v: string) {
 		return /^\d{5,15}$/.test(v);
 	}
 	/**
 	 * 验证邮箱
 	 * @param v
 	 */
-	public static email(v: string) {
+	public static isEmail(v: string) {
 		return /^[a-zA-Z0-9_-]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/.test(v);
 	}
 	/**
 	 * 验证手机号
 	 * @param v
 	 */
-	public static tel(v: string) {
+	public static isTel(v: string) {
 		return /^1[3-9]\d{9}$/.test(v);
 	}
 	/**
 	 * 验证手机验证码
 	 * @param v
 	 */
-	public static code(v: string) {
+	public static isCode(v: string) {
 		return /^\d{6}$/.test(v);
 	}
 	/**
 	 * 验证Android环境
 	 */
-	public static android() {
+	public static isAndroid() {
 		return /Linux|Android/i.test(window.navigator.userAgent);
 	}
 	/**
 	 * 验证iOS环境
 	 */
-	public static ios() {
+	public static isiOS() {
 		return /iPhone/i.test(window.navigator.userAgent);
 	}
 	/**
 	 * 验证微信环境
 	 */
-	public static weixin() {
+	public static isWeixin() {
 		return /MicroMessenger/i.test(window.navigator.userAgent);
 	}
 	/**
 	 * 验证是否是刘海屏
 	 */
-	public static bangScreen() {
+	public static isBangScreen() {
 		return (
 			window && window.screen.height >= 812 && window.devicePixelRatio >= 2
 		);
@@ -142,6 +142,22 @@ class Validator {
 		} catch (e) {
 			return false;
 		}
+	}
+
+	/**
+	 * 检验目标字符串是否包含音频后缀
+	 * @param src
+	 */
+	public static isAudio(src: string) {
+		return /\.(mp3|wav|ogg|flac|aac|wma|m4a)\b/g.test(src);
+	}
+
+	/**
+	 * 检验目标字符串是否包含视频后缀
+	 * @param src
+	 */
+	public static isVideo(src: string) {
+		return /\.(mp4|avi|mov|wmv|flv|mkv|webm)\b/g.test(src);
 	}
 
 	/**
