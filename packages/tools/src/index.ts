@@ -109,14 +109,20 @@ class Tools {
 			n = n.toString();
 			return n[1] ? n : '0' + n;
 		}
-		let date: Date;
-		if (
-			Object.prototype.toString.call(v).slice(8, -1).toLowerCase() === 'date'
-		) {
-			date = v as Date;
-		} else {
-			date = new Date(v);
+
+		// 由于 iOS 在微信小程序中不支持 2024-01-01 00:00:00 创建日期
+		// 因此需要特殊处理将参数转换为成 2024/01/01 00:00:00 格式
+		const reg = /^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/;
+		if (typeof v === 'string' && reg.test(v)) {
+			v = v.replace(/-/g, '/');
 		}
+
+		// 尝试使用 Date 对象进行解析
+		const date = new Date(v);
+		if (isNaN(date.getTime())) {
+			return '-';
+		}
+
 		// 获取年月日、时分秒
 		const year = date.getFullYear().toString();
 		const month = formatNumber(date.getMonth() + 1);

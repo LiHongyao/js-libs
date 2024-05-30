@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.11
+
+### Patch Changes
+
+- 优化 dateFormat 兼容小程序iOS
+
 ## 1.0.10
 
 ### Patch Changes
