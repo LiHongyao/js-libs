@@ -225,74 +225,101 @@ class Tools {
 	}
 
 	/**
-	 * 时间倒计时（返回时分秒）
-	 * @param timeStamp 时间戳
-	 * @param format    返回格式 dd hh:mm:ss，不传则返回元组类型[天,时,分,秒]
-	 * @param type      倒计时格式 default/秒制；ms/毫秒制
-	 * @param showDay   是否显示天 true-超过24小时天数+1；false-超过24小时累计小时值，默认为true
-	 * @param pending   倒计时持续状态
-	 * @param complete  倒计时结束
+	 * 时间倒计时
+	 * @param options 配置项
+	 * @param options.format    返回格式 dd hh:mm:ss，不传则返回元组类型[天,时,分,秒,毫秒]
+	 * @param options.mode      倒计时模式 default/标准时间；seconds/秒
+	 * @param options.type      倒计时格式 default/秒制；ms/毫秒制
+	 * @param options.showDay   是否显示天 true-超过24小时天数+1；false-超过24小时累计小时值，默认为true
+	 * @param options.pending   倒计时持续状态
+	 * @param options.complete  倒计时结束
+	 * @returns
 	 */
-	public static timeDown(params: {
+	public static timeDown(options: {
 		timeStamp: number;
 		format?: string;
+		mode?: 'default' | 'seconds';
 		type?: 'default' | 'ms';
 		showDay?: boolean;
 		pending: (time: string | string[]) => void;
 		complete: () => void;
 	}) {
+		// -- 解构参数
+		const {
+			timeStamp,
+			format,
+			mode = 'default',
+			type = 'default',
+			showDay = true,
+			pending,
+			complete
+		} = options;
+		// -- 定义变量
+		let counter = timeStamp;
+		let t: number;
+		const interval = type === 'default' ? 1000 : 100;
 		// -- 处理时间格式
 		const f = (n: number | string) => {
 			n = n.toString();
 			return n[1] ? n : '0' + n;
 		};
-		// -- 解构参数
-		const {
-			timeStamp,
-			format,
-			type = 'default',
-			showDay = true,
-			pending,
-			complete
-		} = params;
-		const interval = type === 'default' ? 1000 : 100;
-		let counter = timeStamp;
+		// -- 按标准倒计时处理
+		const calcForDefault = () => {
+			const day = showDay ? f(Math.floor(counter / 1000 / 60 / 60 / 24)) : '';
+			const hours = showDay
+				? f(Math.floor((counter / 1000 / 60 / 60) % 24))
+				: f(Math.floor(counter / 1000 / 60 / 60));
+			const minutes = f(Math.floor((counter / 1000 / 60) % 60));
+			const seconds = f(Math.floor((counter / 1000) % 60));
+			const millisecond = f(Math.floor((counter % 1000) / 100));
+			let res: string | string[] = '';
+			// 判断是否格式返回
+			if (format) {
+				res = format
+					.replace(/dd/gi, day)
+					.replace(/hh/gi, hours)
+					.replace(/mm/gi, minutes)
+					.replace(/ss/gi, seconds)
+					.replace(/ms/gi, millisecond);
+			} else {
+				if (type === 'default') res = [day, hours, minutes, seconds];
+				if (type === 'ms') res = [day, hours, minutes, seconds, millisecond];
+			}
+			if (counter <= 0) {
+				clearInterval(t);
+				complete();
+			} else {
+				pending(res);
+			}
+		};
+		const calcForSeconds = () => {
+			const seconds = f(Math.floor(counter / 1000));
+			const millisecond = f(Math.floor((counter % 1000) / 100));
+			let res: string | string[] = '';
+			if (format) {
+				res = format.replace(/ss/gi, seconds).replace(/ms/gi, millisecond);
+			} else {
+				if (type === 'default') res = [seconds];
+				if (type === 'ms') res = [seconds, millisecond];
+			}
+			if (counter <= 0) {
+				clearInterval(t);
+				complete();
+			} else {
+				pending(res);
+			}
+		};
 		if (counter <= 0) {
 			complete();
 		} else {
 			const tick = () => {
 				counter -= interval;
-				const day = showDay ? f(Math.floor(counter / 1000 / 60 / 60 / 24)) : '';
-				const hours = showDay
-					? f(Math.floor((counter / 1000 / 60 / 60) % 24))
-					: f(Math.floor(counter / 1000 / 60 / 60));
-				const minutes = f(Math.floor((counter / 1000 / 60) % 60));
-				const seconds = f(Math.floor((counter / 1000) % 60));
-				const millisecond = f(Math.floor((counter % 1000) / 100));
-				let res: string | string[];
-				// 判断是否格式返回
-				if (format) {
-					res = format
-						.replace(/dd/gi, day)
-						.replace(/hh/gi, hours)
-						.replace(/mm/gi, minutes)
-						.replace(/ss/gi, seconds)
-						.replace(/ms/gi, millisecond);
-				} else {
-					res =
-						type === 'default'
-							? [day, hours, minutes, seconds]
-							: [day, hours, minutes, seconds, millisecond];
-				}
-				if (counter <= 0) {
-					clearInterval(t);
-					complete();
-				} else {
-					pending(res);
-				}
+				if (mode === 'default') calcForDefault();
+				if (mode === 'seconds') calcForSeconds();
 			};
-			tick();
-			const t = setInterval(tick, interval);
+			if (mode === 'default') calcForDefault();
+			if (mode === 'seconds') calcForSeconds();
+			t = setInterval(tick, interval);
 			return t;
 		}
 	}

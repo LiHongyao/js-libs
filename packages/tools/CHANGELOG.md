@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.12
+
+### Patch Changes
+
+- 更新 timeDown 支持seconds 模式
+
 ## 1.0.11
 
 ### Patch Changes
