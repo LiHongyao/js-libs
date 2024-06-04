@@ -8,12 +8,14 @@
 $ npm install @likg/tools
 # OR
 $ yarn add @likg/tools
+# OR
+$ pnpm add @likg/tools
 ```
 
 # 使用
 
 ```typescript
-import Tools from 'lg-tools';
+import Tools from '@likg/tools';
 ```
 
 # API
@@ -81,17 +83,20 @@ static px2vw(pixel: number): string;
  */
 static clipboard(value: string): Promise<unknown>;
 /**
- * 时间倒计时（返回时分秒）
- * @param timeStamp 时间戳
- * @param format    返回格式 dd hh:mm:ss，不传则返回元组类型[天,时,分,秒]
- * @param type      倒计时格式 default/秒制；ms/毫秒制
- * @param showDay   是否显示天 true-超过24小时天数+1；false-超过24小时累计小时值，默认为true
- * @param pending   倒计时持续状态
- * @param complete  倒计时结束
+ * 时间倒计时
+ * @param options 配置项
+ * @param options.format    返回格式 dd hh:mm:ss，不传则返回元组类型[天,时,分,秒,毫秒]
+ * @param options.mode      倒计时模式 default/标准时间；seconds/秒
+ * @param options.type      倒计时格式 default/秒制；ms/毫秒制
+ * @param options.showDay   是否显示天 true-超过24小时天数+1；false-超过24小时累计小时值，默认为true
+ * @param options.pending   倒计时持续状态
+ * @param options.complete  倒计时结束
+ * @returns
  */
-static timeDown(params: {
+static timeDown(options: {
     timeStamp: number;
     format?: string;
+    mode?: 'default' | 'seconds';
     type?: 'default' | 'ms';
     showDay?: boolean;
     pending: (time: string | string[]) => void;
@@ -167,10 +172,7 @@ static getDays(options?: {
  * @param mode 下载类型：link（链接） | blob（文件流） ，默认值 blob
  * @returns
  */
-static downloadFiles(urls: string[], options?: {
-    filename?: string;
-    mode: 'link' | 'blob';
-}): void;
+static downloadFiles(urls: string[], filename?: string | null, mode?: 'link' | 'blob'): void;
 /**
  * 处理数字小于10时的格式/在小于10的数字前面拼接0
  * @param num
@@ -289,5 +291,10 @@ static analysisDateString(dateString: string): {
     start: string;
     end: string;
 };
-
+/**
+ * 打乱数组的顺序
+ * @param array - 需要打乱顺序的数组
+ * @returns 打乱顺序后的数组
+ */
+static shuffleArray<T = any>(array: T[]): T[];
 ```

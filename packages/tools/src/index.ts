@@ -1067,5 +1067,21 @@ class Tools {
 			end: `${dateString}-${days < 10 ? '0' + days : days} 23:59:59`
 		};
 	}
+
+	/**
+	 * 打乱数组的顺序
+	 * @param array - 需要打乱顺序的数组
+	 * @returns 打乱顺序后的数组
+	 */
+	public static shuffleArray<T = any>(array: T[]): T[] {
+		// -- 创建一个数组的副本以防止修改原数组
+		const shuffledArr = [...array];
+		// -- 使用Fisher-Yates算法打乱数组
+		for (let i = shuffledArr.length - 1; i > 0; i--) {
+			const j = Math.floor(Math.random() * (i + 1));
+			[shuffledArr[i], shuffledArr[j]] = [shuffledArr[j], shuffledArr[i]];
+		}
+		return shuffledArr;
+	}
 }
 export default Tools;

@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.13
+
+### Patch Changes
+
+- 新增 shuffleArray 函数打乱数组顺序
+
 ## 1.0.12
 
 ### Patch Changes
