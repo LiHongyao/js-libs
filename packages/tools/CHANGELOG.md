@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.14
+
+### Patch Changes
+
+- 新增 sleep 线程休眠函数
+
 ## 1.0.13
 
 ### Patch Changes

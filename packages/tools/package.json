@@ -1,6 +1,6 @@
 {
 	"name": "@likg/tools",
-	"version": "1.0.13",
+	"version": "1.0.14",
 	"description": "常用工具函数",
 	"type": "module",
 	"types": "./dist/index.d.ts",

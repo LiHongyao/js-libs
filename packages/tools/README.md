@@ -297,4 +297,10 @@ static analysisDateString(dateString: string): {
  * @returns 打乱顺序后的数组
  */
 static shuffleArray<T = any>(array: T[]): T[];
+/**
+ * 线程休眠
+ * @param delay
+ * @returns
+ */
+static sleep(delay?: number): Promise<unknown>;
 ```

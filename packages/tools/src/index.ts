@@ -1083,5 +1083,14 @@ class Tools {
 		}
 		return shuffledArr;
 	}
+
+	/**
+	 * 线程休眠
+	 * @param delay
+	 * @returns
+	 */
+	public static sleep(delay = 500) {
+		return new Promise((resolve) => setTimeout(resolve, delay));
+	}
 }
 export default Tools;
