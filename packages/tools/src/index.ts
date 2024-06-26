@@ -530,17 +530,19 @@ class Tools {
 
 	/**
 	 * 批量下载（导出）文件
+	 *
+	 * 温馨提示：
+	 * 确保你的服务器返回正确的 Content-Type 标头，这样浏览器会正确识别文件类型
+	 * 如果你的服务器返回错误的 MIME 类型，浏览器(比如百度)可能会默认使用 .bin 扩展名
 	 * @param urls 文件地址，在线链接
 	 * @param filename 文件名
 	 * @param mode 下载类型：link（链接） | blob（文件流），默认值 blob
-	 * @param defaultExtension 默认扩展名，当未从链接中匹配到文件扩展名时，将是用defaultExtension作为扩展名
 	 * @returns
 	 */
 	public static async downloadFiles(
 		urls: string[],
 		filename?: string | null,
-		mode: 'link' | 'blob' = 'blob',
-		defaultExtension = '.mp3'
+		mode: 'link' | 'blob' = 'blob'
 	) {
 		// -- 异常处理
 		if (!urls || urls.length === 0) return;
@@ -563,12 +565,14 @@ class Tools {
 			filename?: string | null
 		): string => {
 			let __filename: string;
+
+			const urlObj = new URL(url);
+			const pathname = urlObj.pathname;
+
 			if (filename) {
 				__filename = filename;
 				if (urls.length > 1) __filename += index + 1;
 			} else {
-				const urlObj = new URL(url);
-				const pathname = urlObj.pathname;
 				const start = pathname.lastIndexOf('/') + 1;
 				const end =
 					pathname.lastIndexOf('.') !== -1
@@ -577,13 +581,8 @@ class Tools {
 				__filename = pathname.slice(start, end);
 			}
 
-			const urlObj = new URL(url);
-			const pathname = urlObj.pathname;
 			const dotIndex = pathname.lastIndexOf('.');
-			let extension = defaultExtension;
-			if (dotIndex !== -1) {
-				extension = pathname.slice(dotIndex);
-			}
+			const extension = dotIndex !== -1 ? pathname.slice(dotIndex) : '.bin';
 
 			return __filename + extension;
 		};
@@ -605,7 +604,6 @@ class Tools {
 		// -- 批量下载
 		const downloadPromises = urls.map((url, index) => {
 			const __filename = generateFilename(url, index, filename);
-			alert(__filename);
 			if (mode === 'blob') {
 				return convertToBlob(url, __filename);
 			} else {
