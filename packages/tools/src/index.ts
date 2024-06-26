@@ -532,16 +532,19 @@ class Tools {
 	 * 批量下载（导出）文件
 	 * @param urls 文件地址，在线链接
 	 * @param filename 文件名
-	 * @param mode 下载类型：link（链接） | blob（文件流） ，默认值 blob
+	 * @param mode 下载类型：link（链接） | blob（文件流），默认值 blob
+	 * @param defaultExtension 默认扩展名，当未从链接中匹配到文件扩展名时，将是用defaultExtension作为扩展名
 	 * @returns
 	 */
-	public static downloadFiles(
+	public static async downloadFiles(
 		urls: string[],
 		filename?: string | null,
-		mode: 'link' | 'blob' = 'blob'
+		mode: 'link' | 'blob' = 'blob',
+		defaultExtension = '.mp3'
 	) {
 		// -- 异常处理
-		if (!urls || (urls && urls.length === 0)) return;
+		if (!urls || urls.length === 0) return;
+
 		// -- 下载方法
 		const download = (href: string, filename: string) => {
 			const a = document.createElement('a');
@@ -552,44 +555,68 @@ class Tools {
 			a.click();
 			document.body.removeChild(a);
 		};
-		// -- 转换成 base64
-		const convertToBlob = (url: string, delay: number, filename: string) => {
-			setTimeout(() => {
-				fetch(url)
-					.then((response) => {
-						if (response.ok) {
-							return response.blob();
-						} else {
-							throw new Error('downloadFiles：无法读取文件数据');
-						}
-					})
-					.then((blobData) => {
-						if (blobData) {
-							download(URL.createObjectURL(blobData), filename);
-						}
-					});
-			}, delay);
-		};
-		// -- 批量下载
-		urls.forEach((url, index) => {
+
+		// -- 生成文件名
+		const generateFilename = (
+			url: string,
+			index: number,
+			filename?: string | null
+		): string => {
 			let __filename: string;
 			if (filename) {
 				__filename = filename;
 				if (urls.length > 1) __filename += index + 1;
 			} else {
-				const start = url.lastIndexOf('/') + 1;
-				const end = url.lastIndexOf('.');
-				__filename = url.slice(start, end);
+				const urlObj = new URL(url);
+				const pathname = urlObj.pathname;
+				const start = pathname.lastIndexOf('/') + 1;
+				const end =
+					pathname.lastIndexOf('.') !== -1
+						? pathname.lastIndexOf('.')
+						: pathname.length;
+				__filename = pathname.slice(start, end);
 			}
 
-			const extension = url.slice(url.lastIndexOf('.'));
+			const urlObj = new URL(url);
+			const pathname = urlObj.pathname;
+			const dotIndex = pathname.lastIndexOf('.');
+			let extension = defaultExtension;
+			if (dotIndex !== -1) {
+				extension = pathname.slice(dotIndex);
+			}
+
+			return __filename + extension;
+		};
+
+		// -- 转换成 blob 并下载
+		const convertToBlob = async (url: string, filename: string) => {
+			try {
+				const response = await fetch(url);
+				if (!response.ok) {
+					throw new Error('downloadFiles：无法读取文件数据');
+				}
+				const blobData = await response.blob();
+				download(URL.createObjectURL(blobData), filename);
+			} catch (error) {
+				console.error('downloadFiles：', error);
+			}
+		};
+
+		// -- 批量下载
+		const downloadPromises = urls.map((url, index) => {
+			const __filename = generateFilename(url, index, filename);
+			alert(__filename);
 			if (mode === 'blob') {
-				convertToBlob(url, index * 200, __filename + extension);
+				return convertToBlob(url, __filename);
 			} else {
-				download(url, __filename + extension);
+				download(url, __filename);
+				return Promise.resolve();
 			}
 		});
+
+		await Promise.all(downloadPromises);
 	}
+
 	/**
 	 * 处理数字小于10时的格式/在小于10的数字前面拼接0
 	 * @param num

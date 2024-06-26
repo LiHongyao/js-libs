@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.15
+
+### Patch Changes
+
+- 优化 downloadFiles
+
 ## 1.0.14
 
 ### Patch Changes

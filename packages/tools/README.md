@@ -169,7 +169,8 @@ static getDays(options?: {
  * 批量下载（导出）文件
  * @param urls 文件地址，在线链接
  * @param filename 文件名
- * @param mode 下载类型：link（链接） | blob（文件流） ，默认值 blob
+ * @param mode 下载类型：link（链接） | blob（文件流），默认值 blob
+ * @param defaultExtension 默认扩展名，当未从链接中匹配到文件扩展名时，将是用defaultExtension作为扩展名
  * @returns
  */
 static downloadFiles(urls: string[], filename?: string | null, mode?: 'link' | 'blob'): void;
