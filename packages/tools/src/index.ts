@@ -228,7 +228,7 @@ class Tools {
 	 * 时间倒计时
 	 * @param options 配置项
 	 * @param options.format    返回格式 dd hh:mm:ss，不传则返回元组类型[天,时,分,秒,毫秒]
-	 * @param options.mode      倒计时模式 default/标准时间；seconds/秒
+	 * @param options.mode      倒计时模式 default/标准时间；seconds/秒，为 seconds 时，超过 60s 不会转成分，小于 10 时不添加前置位“0”
 	 * @param options.type      倒计时格式 default/秒制；ms/毫秒制
 	 * @param options.showDay   是否显示天 true-超过24小时天数+1；false-超过24小时累计小时值，默认为true
 	 * @param options.pending   倒计时持续状态
@@ -260,8 +260,8 @@ class Tools {
 		const interval = type === 'default' ? 1000 : 100;
 		// -- 处理时间格式
 		const f = (n: number | string) => {
-			n = n.toString();
-			return n[1] ? n : '0' + n;
+			if (mode === 'seconds') return String(n);
+			return Number(n) < 10 ? '0' + n : String(n);
 		};
 		// -- 按标准倒计时处理
 		const calcForDefault = () => {

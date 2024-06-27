@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.17
+
+### Patch Changes
+
+- 优化 timedown 函数, mode = seconds 时秒数<10不追加 0
+
 ## 1.0.16
 
 ### Patch Changes
