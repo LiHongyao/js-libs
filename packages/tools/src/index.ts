@@ -531,9 +531,11 @@ class Tools {
 	/**
 	 * 批量下载（导出）文件
 	 *
-	 * 温馨提示：
-	 * 确保你的服务器返回正确的 Content-Type 标头，这样浏览器会正确识别文件类型
-	 * 如果你的服务器返回错误的 MIME 类型，浏览器(比如百度)可能会默认使用 .bin 扩展名
+	 * 是用 blob 流式下载时，需要注意以下几点：
+	 * 1. 需要处理跨域问题：如果服务器没有设置合适的CORS策略，可能会阻止JavaScript访问文件。因此，需要确保服务器允许跨域请求。
+	 * 2. 需要处理文件格式问题：不同的浏览器可能对不同的文件格式支持程度不同。因此，需要确保服务器提供的文件格式兼容各种浏览器，即指定 Content-Type。
+	 *    当服务器不知道文件的确切 MIME 类型时，会使用 binary/octet-stream 作为默认值，导致浏览器会将这种 MIME 类型的数据作为二进制文件进行处理，通常会提示用户下载该文件。
+	 *
 	 * @param urls 文件地址，在线链接
 	 * @param filename 文件名
 	 * @param mode 下载类型：link（链接） | blob（文件流），默认值 blob
@@ -556,6 +558,9 @@ class Tools {
 			document.body.appendChild(a);
 			a.click();
 			document.body.removeChild(a);
+			if (mode === 'blob') {
+				URL.revokeObjectURL(href);
+			}
 		};
 
 		// -- 生成文件名
