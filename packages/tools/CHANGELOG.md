@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.20
+
+### Patch Changes
+
+- 优化 downloadFiles,兼容文件MIME类型 😄
+
 ## 1.0.19
 
 ### Patch Changes

@@ -531,9 +531,9 @@ class Tools {
 	/**
 	 * 批量下载（导出）文件
 	 *
-	 * 是用 blob 流式下载时，需要注意以下几点：
-	 * 1. 需要处理跨域问题：如果服务器没有设置合适的CORS策略，可能会阻止JavaScript访问文件。因此，需要确保服务器允许跨域请求。
-	 * 2. 需要处理文件格式问题：不同的浏览器可能对不同的文件格式支持程度不同。因此，需要确保服务器提供的文件格式兼容各种浏览器，即指定 Content-Type。
+	 * 使用 blob 流式下载时，需要注意以下几点：
+	 * 1. 处理跨域问题：如果服务器没有设置合适的CORS策略，可能会阻止JavaScript访问文件。因此，需要确保服务器允许跨域请求。
+	 * 2. 处理文件格式问题：不同的浏览器可能对不同的文件格式支持程度不同。因此，需要确保服务器提供的文件格式兼容各种浏览器，即指定 Content-Type。
 	 *    当服务器不知道文件的确切 MIME 类型时，会使用 binary/octet-stream 作为默认值，导致浏览器会将这种 MIME 类型的数据作为二进制文件进行处理，通常会提示用户下载该文件。
 	 *
 	 * @param urls 文件地址，在线链接
@@ -595,12 +595,101 @@ class Tools {
 		// -- 转换成 blob 并下载
 		const convertToBlob = async (url: string, filename: string) => {
 			try {
-				const response = await fetch(url);
+				const response = await fetch(url, { mode: 'cors' }); // Ensure CORS is enabled
 				if (!response.ok) {
 					throw new Error('downloadFiles：无法读取文件数据');
 				}
 				const blobData = await response.blob();
-				download(URL.createObjectURL(blobData), filename);
+
+				// 根据文件扩展名确定正确的MIME类型
+				const extension = filename.split('.').pop();
+				let mimeType = 'application/octet-stream'; // 默认为binary/octet-stream
+				switch (extension) {
+					case 'mp3':
+						mimeType = 'audio/mpeg';
+						break;
+					case 'wav':
+						mimeType = 'audio/wav';
+						break;
+					case 'ogg':
+						mimeType = 'audio/ogg';
+						break;
+					case 'mp4':
+						mimeType = 'video/mp4';
+						break;
+					case 'avi':
+						mimeType = 'video/x-msvideo';
+						break;
+					case 'mov':
+						mimeType = 'video/quicktime';
+						break;
+					case 'mkv':
+						mimeType = 'video/x-matroska';
+						break;
+					case 'zip':
+						mimeType = 'application/zip';
+						break;
+					case 'rar':
+						mimeType = 'application/vnd.rar';
+						break;
+					case '7z':
+						mimeType = 'application/x-7z-compressed';
+						break;
+					case 'pdf':
+						mimeType = 'application/pdf';
+						break;
+					case 'doc':
+						mimeType = 'application/msword';
+						break;
+					case 'docx':
+						mimeType =
+							'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+						break;
+					case 'xls':
+						mimeType = 'application/vnd.ms-excel';
+						break;
+					case 'xlsx':
+						mimeType =
+							'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+						break;
+					case 'ppt':
+						mimeType = 'application/vnd.ms-powerpoint';
+						break;
+					case 'pptx':
+						mimeType =
+							'application/vnd.openxmlformats-officedocument.presentationml.presentation';
+						break;
+					case 'txt':
+						mimeType = 'text/plain';
+						break;
+					case 'csv':
+						mimeType = 'text/csv';
+						break;
+					case 'html':
+						mimeType = 'text/html';
+						break;
+					case 'jpg':
+					case 'jpeg':
+						mimeType = 'image/jpeg';
+						break;
+					case 'png':
+						mimeType = 'image/png';
+						break;
+					case 'gif':
+						mimeType = 'image/gif';
+						break;
+					case 'svg':
+						mimeType = 'image/svg+xml';
+						break;
+					case 'json':
+						mimeType = 'application/json';
+						break;
+					default:
+						break;
+				}
+
+				const newBlob = new Blob([blobData], { type: mimeType });
+				download(URL.createObjectURL(newBlob), filename);
 			} catch (error) {
 				console.error('downloadFiles：', error);
 			}
