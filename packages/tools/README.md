@@ -207,6 +207,12 @@ static getEnv(): "weixin" | "alipay" | "android" | "ios" | "unknown";
  */
 static getFilePath(file: File, dirName: string): string;
 /**
+ * 将 Base64 字符串转换为 Uint8Array
+ * @param {string} base64String - Base64 字符串
+ * @returns {Uint8Array} - 转换后的 Uint8Array
+ */
+base64ToUint8Array(base64String: string): Uint8Array;
+/**
  * base64转码
  * @param target 图片链接 / 文件对象
  * @returns

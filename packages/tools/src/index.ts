@@ -681,18 +681,54 @@ class Tools {
 	}
 
 	/**
+	 * 将 Base64 字符串转换为 Uint8Array
+	 * @param {string} base64String - Base64 字符串
+	 * @returns {Uint8Array} - 转换后的 Uint8Array
+	 */
+	public base64ToUint8Array(base64String: string): Uint8Array {
+		// -- 移除 data: 前缀（如果存在）
+		const base64 = base64String.includes(',')
+			? base64String.split(',')[1]
+			: base64String;
+
+		// -- 补齐 Base64 字符串的长度，使其长度是4的倍数
+		const padding = '='.repeat((4 - (base64.length % 4)) % 4);
+		const formattedBase64 = (base64 + padding)
+			.replace(/-/g, '+') // 替换 URL 安全的字符
+			.replace(/_/g, '/'); // 替换 URL 安全的字符
+
+		console.log('Base64 String:', formattedBase64); // 调试日志
+
+		// -- 解码 Base64 字符串
+		try {
+			const rawData = window.atob(formattedBase64);
+			const outputArray = new Uint8Array(rawData.length);
+
+			// 将解码后的字符串转换为 Uint8Array
+			for (let i = 0; i < rawData.length; ++i) {
+				outputArray[i] = rawData.charCodeAt(i);
+			}
+
+			return outputArray;
+		} catch (error) {
+			console.error('Failed to decode Base64 string:', error);
+			throw new Error('Invalid Base64 string');
+		}
+	}
+
+	/**
 	 * base64转码
 	 * @param target 图片链接 / 文件对象
 	 * @returns
 	 */
-	public static base64(target: string | File) {
+	public static base64(target: string | File): Promise<string> {
 		return new Promise((resolve, reject) => {
 			if (target instanceof File) {
 				// -- file → base64
 				const reader = new FileReader();
 				reader.readAsDataURL(target);
 				reader.onload = () => {
-					resolve(reader.result);
+					resolve(reader.result as string);
 				};
 				reader.onerror = () => {
 					reject();
@@ -707,7 +743,7 @@ class Tools {
 						const reader = new FileReader();
 						reader.readAsDataURL(this.response);
 						reader.onload = () => {
-							resolve(reader.result);
+							resolve(reader.result as string);
 						};
 					}
 				};

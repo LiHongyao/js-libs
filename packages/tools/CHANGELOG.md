@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.22
+
+### Patch Changes
+
+- 新增base64ToUint8Array方法
+
 ## 1.0.21
 
 ### Patch Changes
