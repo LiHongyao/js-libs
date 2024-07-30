@@ -685,7 +685,7 @@ class Tools {
 	 * @param {string} base64String - Base64 字符串
 	 * @returns {Uint8Array} - 转换后的 Uint8Array
 	 */
-	public base64ToUint8Array(base64String: string): Uint8Array {
+	public static base64ToUint8Array(base64String: string): Uint8Array {
 		// -- 移除 data: 前缀（如果存在）
 		const base64 = base64String.includes(',')
 			? base64String.split(',')[1]
@@ -696,8 +696,6 @@ class Tools {
 		const formattedBase64 = (base64 + padding)
 			.replace(/-/g, '+') // 替换 URL 安全的字符
 			.replace(/_/g, '/'); // 替换 URL 安全的字符
-
-		console.log('Base64 String:', formattedBase64); // 调试日志
 
 		// -- 解码 Base64 字符串
 		try {

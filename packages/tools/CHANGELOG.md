@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 1.0.23
+
+### Patch Changes
+
+- 将base64ToUint8Array设置为静态方法
+
 ## 1.0.22
 
 ### Patch Changes
