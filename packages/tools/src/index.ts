@@ -547,7 +547,9 @@ class Tools {
 		mode: 'link' | 'blob' = 'blob'
 	) {
 		// -- 异常处理
-		if (!urls || urls.length === 0) return;
+		if (!urls || urls.length === 0) {
+			throw new Error('downloadFiles：urls 缺失或无下载资源');
+		}
 
 		// -- 下载方法
 		const download = (href: string, filename: string) => {
@@ -601,8 +603,8 @@ class Tools {
 				}
 				const blobData = await response.blob();
 				download(URL.createObjectURL(blobData), filename);
-			} catch (error) {
-				console.error('downloadFiles：', error);
+			} catch (error: any) {
+				throw new Error('downloadFiles：' + error.message);
 			}
 		};
 
