@@ -1,5 +1,11 @@
 # @likg/tools
 
+## 2.0.0
+
+### Major Changes
+
+- 优化 base64,支持Blob
+
 ## 1.0.24
 
 ### Patch Changes

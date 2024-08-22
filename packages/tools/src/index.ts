@@ -717,42 +717,55 @@ class Tools {
 	}
 
 	/**
-	 * base64转码
-	 * @param target 图片链接 / 文件对象
-	 * @returns
+	 * 将给定的目标（URL、文件对象或 Blob 对象）转换为 Base64 编码的字符串。
+	 *
+	 * 该函数处理以下情况：
+	 * - 指向图像的 URL，获取图像并将其转换为 Base64。
+	 * - 文件对象，直接将其转换为 Base64。
+	 * - Blob 对象，直接将其转换为 Base64。
+	 *
+	 * @param  target - 要转换为 Base64 的目标。
+	 * @returns 一个 Promise 对象，解析为 Base64 编码的字符串，
+	 * @throws 如果目标不是有效的 URL、文件或 Blob，则抛出错误。
+	 *
 	 */
-	public static base64(target: string | File): Promise<string> {
+	public static base64(target: string | File | Blob): Promise<string> {
 		return new Promise((resolve, reject) => {
-			if (target instanceof File) {
-				// -- file → base64
-				const reader = new FileReader();
-				reader.readAsDataURL(target);
+			const reader = new FileReader();
+
+			// 处理 File 或 Blob 对象
+			const handleFileOrBlob = (fileOrBlob: File | Blob) => {
+				reader.readAsDataURL(fileOrBlob);
 				reader.onload = () => {
 					resolve(reader.result as string);
 				};
 				reader.onerror = () => {
-					reject();
+					reject(new Error('读取文件或Blob对象失败'));
 				};
+			};
+
+			if (target instanceof File || target instanceof Blob) {
+				// 处理 File 或 Blob
+				handleFileOrBlob(target);
 			} else if (typeof target === 'string' && /^http/.test(target)) {
-				// -- url → base64
+				// 处理 URL
 				const xhr = new XMLHttpRequest();
 				xhr.open('GET', target, true);
 				xhr.responseType = 'blob';
 				xhr.onload = function () {
 					if (this.status === 200) {
-						const reader = new FileReader();
-						reader.readAsDataURL(this.response);
-						reader.onload = () => {
-							resolve(reader.result as string);
-						};
+						handleFileOrBlob(this.response);
+					} else {
+						reject(new Error('请求图片失败，状态码: ' + this.status));
 					}
 				};
 				xhr.onerror = () => {
-					reject();
+					reject(new Error('请求图片失败'));
 				};
 				xhr.send();
 			} else {
-				reject({ message: '文件格式有误' });
+				// 无法处理的类型
+				reject(new Error('文件格式有误或目标类型不支持'));
 			}
 		});
 	}

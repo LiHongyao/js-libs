@@ -213,9 +213,17 @@ static getFilePath(file: File, dirName: string): string;
  */
 base64ToUint8Array(base64String: string): Uint8Array;
 /**
- * base64转码
- * @param target 图片链接 / 文件对象
- * @returns
+ * 将给定的目标（URL、文件对象或 Blob 对象）转换为 Base64 编码的字符串。
+ *
+ * 该函数处理以下情况：
+ * - 指向图像的 URL，获取图像并将其转换为 Base64。
+ * - 文件对象，直接将其转换为 Base64。
+ * - Blob 对象，直接将其转换为 Base64。
+ *
+ * @param  target - 要转换为 Base64 的目标。
+ * @returns 一个 Promise 对象，解析为 Base64 编码的字符串，
+ * @throws 如果目标不是有效的 URL、文件或 Blob，则抛出错误。
+ *
  */
 static base64(target: string | File): Promise<unknown>;
 /**
